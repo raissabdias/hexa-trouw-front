@@ -161,61 +161,60 @@ export default function LocationsIndexPage() {
   }, [search]);
 
   return (
-    <div className="min-h-screen bg-zinc-50">
-      <div className="mx-auto max-w-6xl px-4 py-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
-              Locais
-            </h1>
-            <p className="mt-1 text-sm text-zinc-600">
-              Listagem de locais cadastrados.
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <div className="sm:w-80">
-              <label className="sr-only" htmlFor="locations-search">
-                Buscar
-              </label>
-              <input
-                id="locations-search"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Buscar por nome, documento, endereço..."
-                className="w-full rounded-md bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm ring-1 ring-zinc-200 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/20"
-              />
-            </div>
-
-            <button
-              type="button"
-              className="inline-flex items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-medium text-zinc-900 shadow-sm ring-1 ring-zinc-200 hover:bg-zinc-50"
-              onClick={() => {
-                // placeholder (rota/modal virá depois)
-              }}
-              aria-label="Importar/relatórios"
-              title="Importar/relatórios"
-            >
-              <FileText className="h-4 w-4" />
-              Documentos
-            </button>
-
-            <button
-              type="button"
-              className="inline-flex items-center gap-2 rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-zinc-800"
-              onClick={() => {
-                // placeholder (rota/modal virá depois)
-              }}
-              aria-label="Novo local"
-              title="Novo local"
-            >
-              <Plus className="h-4 w-4" />
-              Novo
-            </button>
-          </div>
+    <div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
+            Locais
+          </h1>
+          <p className="mt-1 text-sm text-zinc-600">
+            Listagem de locais cadastrados.
+          </p>
         </div>
 
-        <div className="mt-6 overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-zinc-200">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="sm:w-80">
+            <label className="sr-only" htmlFor="locations-search">
+              Buscar
+            </label>
+            <input
+              id="locations-search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar por nome, documento, endereço..."
+              className="w-full rounded-md bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm ring-1 ring-zinc-200 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/20"
+            />
+          </div>
+
+          <button
+            type="button"
+            className="inline-flex items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-medium text-zinc-900 shadow-sm ring-1 ring-zinc-200 hover:bg-zinc-50"
+            onClick={() => {
+              // placeholder (rota/modal virá depois)
+            }}
+            aria-label="Importar/relatórios"
+            title="Importar/relatórios"
+          >
+            <FileText className="h-4 w-4" />
+            Documentos
+          </button>
+
+          <button
+            type="button"
+            className="inline-flex items-center gap-2 rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-zinc-800"
+            onClick={() => {
+              // placeholder (rota/modal virá depois)
+            }}
+            aria-label="Novo local"
+            title="Novo local"
+          >
+            <Plus className="h-4 w-4" />
+            Novo
+          </button>
+        </div>
+      </div>
+
+      <div className="mt-4 overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-zinc-200">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-zinc-200">
               <thead className="bg-zinc-50">
@@ -321,7 +320,6 @@ export default function LocationsIndexPage() {
             </div>
           </div>
         </div>
-      </div>
     </div>
   );
 }

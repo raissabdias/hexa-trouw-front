@@ -1,8 +1,18 @@
+import { MenuLayout } from "./components/MenuLayout";
+import InvoicesIndexPage from "./pages/Invoices";
 import LocationsIndexPage from "./pages/Locations";
+import TravelIndexPage from "./pages/Travel";
 
 function App() {
   return (
-    <LocationsIndexPage />
+    <MenuLayout
+      defaultActive="locations"
+      views={{
+        invoices: <InvoicesIndexPage />,
+        locations: <LocationsIndexPage />,
+        travel: <TravelIndexPage />,
+      }}
+    />
   )
 }
 
