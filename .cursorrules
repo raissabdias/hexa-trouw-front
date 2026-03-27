@@ -1,0 +1,16 @@
+# Contexto: Travel Hexa Front-end
+
+## Arquitetura da API (Back-end NestJS)
+- A API usa um Interceptor que coloca o resultado em: `{ success: true, data: T, meta: { total: number } }`.
+- IMPORTANTE: Para listagens (GET), os objetos estão em `response.data.data`.
+- Erros seguem o formato: `{ success: false, message: string }`.
+
+## Tecnologias e Estilo
+- Vite + React + TypeScript.
+- Tailwind CSS v4 (usando @tailwindcss/postcss).
+- Axios para chamadas API (Porta 3000).
+- Lucide React para ícones.
+
+## Definições de Domínio (Baseado no Back)
+- Invoices: Campos `number`, `value`, `weight`, `recipientId`.
+- Locations: Payload complexo com objetos `person`, `address` e `local`.
