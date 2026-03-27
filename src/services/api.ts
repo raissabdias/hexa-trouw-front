@@ -9,8 +9,12 @@ export interface ApiResponse<T> {
   };
 }
 
+const DEFAULT_API_URL = "https://limited-zonda-trouw-e468592b.koyeb.app/";
+const API_URL =
+  (import.meta.env.VITE_API_URL as string | undefined) ?? DEFAULT_API_URL;
+
 export const api: AxiosInstance = axios.create({
-  baseURL: "https://limited-zonda-trouw-e468592b.koyeb.app/",
+  baseURL: API_URL,
 });
 
 api.interceptors.response.use((response) => response.data);
