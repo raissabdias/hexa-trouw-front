@@ -6,7 +6,7 @@ import TravelIndexPage from "./pages/Travel";
 function App() {
   return (
     <MenuLayout
-      defaultActive="locations"
+      defaultActive="travel"
       views={{
         invoices: <InvoicesIndexPage />,
         locations: <LocationsIndexPage />,

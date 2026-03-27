@@ -228,7 +228,7 @@ export default function InvoicesIndexPage() {
         series: form.series.trim(),
         value: valueNum,
         weight: weightNum,
-        volume: volumeNum,
+        volume: Math.round(volumeNum * 1000000),
         recipientId: Number(form.recipientId),
         issuedAt: form.issuedAt ? new Date(form.issuedAt).toISOString() : undefined,
         scheduledDelivery: form.scheduledDelivery ? new Date(form.scheduledDelivery).toISOString() : undefined,
@@ -539,9 +539,9 @@ export default function InvoicesIndexPage() {
                     <td className="whitespace-nowrap px-4 py-3 text-right text-sm text-zinc-700">
                       {row.volume != null ? (
                         <span>
-                          {row.volume.toLocaleString("pt-BR", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
+                          {(row.volume / 1000000).toLocaleString("pt-BR", {
+                            minimumFractionDigits: 4,
+                            maximumFractionDigits: 4,
                           })}
                           <span className="ml-1 text-xs text-zinc-500">m³</span>
                         </span>

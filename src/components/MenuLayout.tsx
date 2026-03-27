@@ -26,8 +26,8 @@ export function MenuLayout(props: {
   const activeView = useMemo(() => props.views[active], [active, props.views]);
 
   return (
-    <div className="min-h-screen bg-zinc-50">
-      <header className="border-b border-zinc-200 bg-white">
+    <div className={`bg-zinc-50 flex flex-col ${active === "travel" ? "h-screen overflow-hidden" : "min-h-screen"}`}>
+      <header className="border-b border-zinc-200 bg-white shrink-0">
         <div className="mx-auto max-w-7xl px-4 py-3">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -72,7 +72,9 @@ export function MenuLayout(props: {
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-4 py-4">{activeView}</main>
+      <main className={`flex-1 flex flex-col min-h-0 py-4 px-4 ${active === "travel" ? "mx-auto w-full max-w-[100vw]" : "mx-auto w-full max-w-7xl"}`}>
+        {activeView}
+      </main>
     </div>
   );
 }
