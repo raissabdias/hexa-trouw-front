@@ -22,6 +22,12 @@ function formatCpfCnpj(value: string): string {
   return value;
 }
 
+function formatCep(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 8);
+  if (digits.length < 8) return value;
+  return digits.replace(/^(\d{5})(\d{3})$/, "$1-$2");
+}
+
 type LocationApiItem = {
   id?: string | number;
   description?: string;
@@ -141,7 +147,10 @@ function getCityState(row: LocationApiItem): string {
 }
 
 function getZip(row: LocationApiItem): string {
-  return row.reference?.zipCode ?? row.address?.zipCode ?? row.address?.cep ?? "—";
+  const raw =
+    row.reference?.zipCode ?? row.address?.zipCode ?? row.address?.cep ?? "";
+  if (!raw) return "—";
+  return formatCep(raw);
 }
 
 export default function LocationsIndexPage() {
@@ -394,6 +403,18 @@ export default function LocationsIndexPage() {
               Preencha os campos obrigatórios para cadastrar.
             </p>
           </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              setMode("list");
+              setFormError(null);
+            }}
+            className="rounded-md bg-white px-3 py-2 text-sm font-medium text-zinc-900 ring-1 ring-zinc-200 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={saving}
+          >
+            Voltar
+          </button>
         </div>
 
         <div className="mt-4 rounded-lg bg-white p-4 shadow-sm ring-1 ring-zinc-200 sm:p-6">
