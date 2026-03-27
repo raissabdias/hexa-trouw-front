@@ -1,9 +1,21 @@
 # Contexto: Travel Hexa Front-end
 
 ## Arquitetura da API (Back-end NestJS)
-- A API usa um Interceptor que coloca o resultado em: `{ success: true, data: T, meta: { total: number } }`.
-- IMPORTANTE: Para listagens (GET), os objetos estão em `response.data.data`.
-- Erros seguem o formato: `{ success: false, message: string }`.
+- **Base URL:** `https://limited-zonda-trouw-e468592b.koyeb.app/`
+- **Swagger Docs:** `https://limited-zonda-trouw-e468592b.koyeb.app/api/docs`
+
+## 🏗️ Padrão de Resposta (Global Wrapper)
+Todas as respostas da API seguem o padrão definido pelo `TransformInterceptor`. Nunca acesse os dados diretamente na raiz do JSON.
+- **Estrutura:**
+  ```typescript
+  interface ApiResponse<T> {
+    success: boolean;   // Indica se a operação ocorreu sem erros
+    message: string;   // Mensagem descritiva (ex: "Operation successful")
+    data: T;           // O conteúdo real (Objeto ou Array)
+    meta?: {           // Presente apenas em listagens paginadas
+      total: number;
+    };
+  }
 
 ## Tecnologias e Estilo
 - Vite + React + TypeScript.
