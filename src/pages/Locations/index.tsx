@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { FileText, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import {
   Autocomplete,
   GoogleMap,
@@ -671,19 +671,6 @@ export default function LocationsIndexPage() {
               className="w-full rounded-md bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm ring-1 ring-zinc-200 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/20"
             />
           </div>
-
-          <button
-            type="button"
-            className="inline-flex items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-medium text-zinc-900 shadow-sm ring-1 ring-zinc-200 hover:bg-zinc-50"
-            onClick={() => {
-              // placeholder (rota/modal virá depois)
-            }}
-            aria-label="Importar/relatórios"
-            title="Importar/relatórios"
-          >
-            <FileText className="h-4 w-4" />
-            Documentos
-          </button>
 
           <button
             type="button"
