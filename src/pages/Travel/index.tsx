@@ -147,6 +147,16 @@ function formatDate(iso: string | null) {
   });
 }
 
+function getContrastColor(hexColor: string) {
+  if (!hexColor || hexColor.length < 6) return "#ffffff";
+  const hex = hexColor.replace("#", "");
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+  return yiq >= 128 ? "#000000" : "#ffffff";
+}
+
 
 
 export default function TravelIndexPage() {
@@ -428,13 +438,28 @@ export default function TravelIndexPage() {
   const travelMarkers = useMemo(() => {
     if (viewMode !== "viagens") return [];
     const markers: Array<{ lat: number, lng: number, travelId: number, point: TravelPoint, isSelected: boolean, color?: string, isOrigin: boolean }> = [];
+    const coordinateCounts = new Map<string, number>();
+
     travels.forEach((t) => {
       const isSelected = selectedTravelIds.includes(t.id);
       const originLocationId = t.origin?.locationId;
+      
       (t.travelPoints || []).forEach(p => {
-        const lat = Number(p.address.latitude);
-        const lng = Number(p.address.longitude);
+        let lat = Number(p.address.latitude);
+        let lng = Number(p.address.longitude);
+        
         if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
+          const key = `${lat.toFixed(6)},${lng.toFixed(6)}`;
+          const count = coordinateCounts.get(key) || 0;
+          
+          if (count > 0) {
+            const radius = 0.00015 * Math.ceil(count / 6);
+            const angle = count * (Math.PI / 3);
+            lat += radius * Math.cos(angle);
+            lng += radius * Math.sin(angle);
+          }
+          coordinateCounts.set(key, count + 1);
+
           const isOrigin = p.stopTypeId === 4 || p.locationId === originLocationId;
           markers.push({ lat, lng, travelId: t.id, point: p, isSelected, color: t.color, isOrigin });
         }
@@ -630,17 +655,22 @@ export default function TravelIndexPage() {
                     }}
                     onRightClick={() => setActiveMarkerId(`tvl-${m.travelId}-${idx}`)}
                     icon={{
-                      path: m.isOrigin
-                        ? "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm-1-0.5h2v3h3v2h-3v3h-2v-3H8v-2h3z"
-                        : "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
-                      fillColor: "#2E3191",
+                      path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z",
+                      fillColor: m.isOrigin ? "#2E3191" : (m.color || "#3b82f6"),
                       fillOpacity: 1,
                       strokeWeight: m.isSelected ? 2.5 : 1.5,
                       strokeColor: "#ffffff",
-                      scale: m.isOrigin ? 1.5 : (m.isSelected ? 1.3 : 1.0),
+                      scale: m.isOrigin ? 1.7 : (m.isSelected ? 1.5 : 1.2),
                       anchor: new window.google.maps.Point(12, 24),
+                      labelOrigin: new window.google.maps.Point(12, 9),
                     }}
-                    zIndex={m.isSelected ? 999 : 10}
+                    label={{
+                      text: m.point.sequence.toString(),
+                      color: getContrastColor(m.isOrigin ? "#2E3191" : (m.color || "#3b82f6")),
+                      fontSize: "10px",
+                      fontWeight: "bold",
+                    }}
+                    zIndex={m.isSelected ? 1000 + m.point.sequence : 100 + m.point.sequence}
                   >
                     {activeMarkerId === `tvl-${m.travelId}-${idx}` && (
                       <OverlayViewF position={{ lat: m.lat, lng: m.lng }} mapPaneName="overlayMouseTarget" getPixelPositionOffset={(w, h) => ({ x: -(w / 2), y: -(h + 40) })}>
@@ -649,8 +679,8 @@ export default function TravelIndexPage() {
                             <span className="sr-only">Fechar</span>
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                           </button>
-                          <span className="mb-2 inline-flex items-center rounded-full bg-[#2E3191]/10 px-2 py-1 text-xs font-semibold text-[#2E3191] ring-1 ring-[#2E3191]/20 w-max">Viagem #{m.travelId}</span>
-                          <h3 className="text-sm font-bold text-zinc-900 line-clamp-2">{m.point.name.toUpperCase()}</h3>
+                          <span className="mb-2 inline-flex items-center rounded-full bg-[#2E3191]/10 px-2 py-1 text-xs font-semibold text-[#2E3191] ring-1 ring-[#2E3191]/20 w-max">{m.isOrigin ? "Origem" : `Parada #${m.point.sequence}`}</span>
+                          <h3 className="text-sm font-bold text-zinc-900 line-clamp-2">#{m.point.sequence} - {m.point.name.toUpperCase()}</h3>
                           <div className="mt-2 text-xs text-zinc-600 border-t border-zinc-100 pt-2">{m.point.address.city} / {m.point.address.state}</div>
                         </div>
                       </OverlayViewF>
