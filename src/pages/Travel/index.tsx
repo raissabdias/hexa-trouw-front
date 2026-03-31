@@ -114,6 +114,16 @@ export default function TravelIndexPage() {
   const [selectedInvoiceIds, setSelectedInvoiceIds] = useState<number[]>([]);
   const [selectedTravelIds, setSelectedTravelIds] = useState<number[]>([]);
 
+  // Routing Modal States
+  const [isRoutingModalOpen, setIsRoutingModalOpen] = useState(false);
+  const [startDate, setStartDate] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    d.setHours(8, 0, 0, 0);
+    return d.toISOString().slice(0, 16);
+  });
+  const [isRouting, setIsRouting] = useState(false);
+
   const [activeMarkerId, setActiveMarkerId] = useState<string | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
@@ -218,6 +228,36 @@ export default function TravelIndexPage() {
 
   const toggleSelectInvoice = (id: number) => {
     setSelectedInvoiceIds((prev) => prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]);
+  };
+
+  const handleCreateTravel = async () => {
+    if (selectedInvoiceIds.length === 0) return;
+
+    setIsRouting(true);
+    try {
+      const payload = {
+        invoiceIds: selectedInvoiceIds,
+        originPersonId: Number(import.meta.env.VITE_ORIGIN_ID),
+        startDate: new Date(startDate).toISOString(),
+      };
+
+      const res = await api.post<ApiResponse<{ travelId: number }>, ApiResponse<{ travelId: number }>>("/travels", payload);
+
+      if (res.success) {
+        setIsRoutingModalOpen(false);
+        setSelectedInvoiceIds([]);
+        setViewMode("viagens");
+        setSelectedTravelIds([res.data.travelId]);
+        setActiveMarkerId(`tvl-${res.data.travelId}-0`);
+        setSearch("");
+      } else {
+        alert(res.message || "Erro ao roteirizar.");
+      }
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Erro desconhecido ao roteirizar.");
+    } finally {
+      setIsRouting(false);
+    }
   };
 
 
@@ -488,12 +528,20 @@ export default function TravelIndexPage() {
 
           <div className="flex-1 flex justify-start sm:justify-center">
             {viewMode === "entregas" && invoiceStats && (
-              <div className="flex items-center gap-3 text-xs font-medium text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full ring-1 ring-inset ring-emerald-600/20">
-                <span>{invoiceStats.count} nota{invoiceStats.count > 1 ? "s" : ""}</span>
-                <span className="w-1 h-1 rounded-full bg-emerald-300"></span>
-                <span>{invoiceStats.weight.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kg</span>
-                <span className="w-1 h-1 rounded-full bg-emerald-300"></span>
-                <span>{invoiceStats.volume.toLocaleString('pt-BR', { minimumFractionDigits: 4, maximumFractionDigits: 4 })} m³</span>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 text-xs font-medium text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full ring-1 ring-inset ring-emerald-600/20">
+                  <span>{invoiceStats.count} nota{invoiceStats.count > 1 ? "s" : ""}</span>
+                  <span className="w-1 h-1 rounded-full bg-emerald-300"></span>
+                  <span>{invoiceStats.weight.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kg</span>
+                  <span className="w-1 h-1 rounded-full bg-emerald-300"></span>
+                  <span>{invoiceStats.volume.toLocaleString('pt-BR', { minimumFractionDigits: 4, maximumFractionDigits: 4 })} m³</span>
+                </div>
+                <button
+                  onClick={() => setIsRoutingModalOpen(true)}
+                  className="rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition-colors"
+                >
+                  Roteirizar
+                </button>
               </div>
             )}
             {viewMode === "viagens" && travelStats && (
@@ -600,6 +648,54 @@ export default function TravelIndexPage() {
           </table>
         </div>
       </div>
+
+      {isRoutingModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 ring-1 ring-black/5 animate-in fade-in zoom-in duration-200">
+            <h3 className="text-lg font-bold text-zinc-900">Configurar Roteirização</h3>
+            <p className="mt-1 text-sm text-zinc-500">
+              Selecione a data e hora prevista para o início da viagem.
+            </p>
+
+            <div className="mt-6">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">
+                Data e Hora de Início
+              </label>
+              <input
+                type="datetime-local"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full rounded-xl border border-zinc-200 bg-zinc-50 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+              />
+            </div>
+
+            <div className="mt-8 flex items-center justify-end gap-3">
+              <button
+                disabled={isRouting}
+                onClick={() => setIsRoutingModalOpen(false)}
+                className="px-4 py-2 text-sm font-medium text-zinc-600 hover:text-zinc-900 transition-colors disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                disabled={isRouting}
+                onClick={() => void handleCreateTravel()}
+                className="rounded-xl bg-emerald-600 px-6 py-2 text-sm font-bold text-white shadow-lg hover:bg-emerald-700 transition-all disabled:opacity-50 flex items-center gap-2"
+              >
+                {isRouting ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Processando...
+                  </>
+                ) : "Confirmar Viagem"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
