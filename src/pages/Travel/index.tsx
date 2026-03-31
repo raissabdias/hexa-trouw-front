@@ -7,6 +7,7 @@ import {
   useJsApiLoader,
   MarkerClustererF,
 } from "@react-google-maps/api";
+import { decodeFlexPolyline as decode } from "../../utils/flexPolyline";
 import { api, type ApiResponse } from "../../services/api";
 
 type InvoiceApiItem = {
@@ -62,6 +63,8 @@ type TravelApiItem = {
   totalValue: string;
   origin?: TravelPoint;
   travelPoints?: TravelPoint[];
+  color?: string;
+  polyline?: string[];
 };
 
 const MAPS_LIBRARIES = ["places"];
@@ -290,23 +293,41 @@ export default function TravelIndexPage() {
     if (viewMode !== "viagens") return [];
     return travels.map((travel) => {
       const isSelected = selectedTravelIds.includes(travel.id);
-      const points = (travel.travelPoints || [])
-        .map((p) => ({ lat: Number(p.address.latitude), lng: Number(p.address.longitude) }))
-        .filter((p) => !Number.isNaN(p.lat) && !Number.isNaN(p.lng));
-      return { travelId: travel.id, path: points, isSelected };
+      let path: { lat: number; lng: number }[] = [];
+
+      if (travel.polyline && travel.polyline.length > 0) {
+        try {
+          travel.polyline.forEach((encoded) => {
+            const decoded = decode(encoded);
+            // polyline returns coordinates as [lat, lng] arrays
+            path.push(...decoded.polyline.map(([lat, lng]) => ({ lat, lng })));
+          });
+        } catch (e) {
+          console.error(`Erro ao decodificar polilinha da viagem ${travel.id}`, e);
+          path = (travel.travelPoints || [])
+            .map((p) => ({ lat: Number(p.address.latitude), lng: Number(p.address.longitude) }))
+            .filter((p) => !Number.isNaN(p.lat) && !Number.isNaN(p.lng));
+        }
+      } else {
+        path = (travel.travelPoints || [])
+          .map((p) => ({ lat: Number(p.address.latitude), lng: Number(p.address.longitude) }))
+          .filter((p) => !Number.isNaN(p.lat) && !Number.isNaN(p.lng));
+      }
+
+      return { travelId: travel.id, path, isSelected, color: travel.color };
     }).filter((t) => t.path.length > 1);
   }, [travels, selectedTravelIds, viewMode]);
 
   const travelMarkers = useMemo(() => {
     if (viewMode !== "viagens") return [];
-    const markers: Array<{ lat: number, lng: number, travelId: number, point: TravelPoint, isSelected: boolean }> = [];
+    const markers: Array<{ lat: number, lng: number, travelId: number, point: TravelPoint, isSelected: boolean, color?: string }> = [];
     travels.forEach((t) => {
       const isSelected = selectedTravelIds.includes(t.id);
       (t.travelPoints || []).forEach(p => {
         const lat = Number(p.address.latitude);
         const lng = Number(p.address.longitude);
         if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
-          markers.push({ lat, lng, travelId: t.id, point: p, isSelected });
+          markers.push({ lat, lng, travelId: t.id, point: p, isSelected, color: t.color });
         }
       });
     });
@@ -473,9 +494,9 @@ export default function TravelIndexPage() {
                     key={`tvl-poly-${poly.travelId}`}
                     path={poly.path}
                     options={{
-                      strokeColor: poly.isSelected ? "#059669" : "#3b82f6",
-                      strokeOpacity: poly.isSelected ? 1.0 : 0.4,
-                      strokeWeight: poly.isSelected ? 4 : 2,
+                      strokeColor: poly.isSelected ? "#059669" : poly.color || "#3b82f6",
+                      strokeOpacity: poly.isSelected ? 1.0 : 0.6,
+                      strokeWeight: poly.isSelected ? 5 : 3,
                       zIndex: poly.isSelected ? 2 : 1
                     }}
                   />
@@ -487,7 +508,7 @@ export default function TravelIndexPage() {
                     onClick={() => { setActiveMarkerId(`tvl-${m.travelId}-${idx}`); }}
                     icon={{
                       path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
-                      fillColor: m.isSelected ? "#059669" : "#3b82f6",
+                      fillColor: m.isSelected ? "#059669" : m.color || "#3b82f6",
                       fillOpacity: 1,
                       strokeWeight: m.isSelected ? 2 : 1,
                       strokeColor: "#ffffff",
@@ -631,7 +652,10 @@ export default function TravelIndexPage() {
                     <td className="px-4 py-3 text-sm" onClick={e => e.stopPropagation()}>
                       <input type="checkbox" checked={selectedTravelIds.includes(row.id)} onChange={() => toggleSelectTravel(row.id)} className="h-4 w-4 rounded border-zinc-300 cursor-pointer" />
                     </td>
-                    <td className="px-4 py-3 text-sm font-medium text-zinc-900">#{row.id}</td>
+                    <td className="px-4 py-3 text-sm font-medium text-zinc-900 flex items-center gap-2">
+                       <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: row.color || '#3b82f6' }}></span>
+                       #{row.id}
+                    </td>
                     <td className="px-4 py-3 text-sm text-zinc-700">{row.origin?.address?.city ? `${row.origin.address.city}/${row.origin.address.state}` : row.origin?.name || "—"}</td>
                     <td className="px-4 py-3 text-sm text-zinc-700">{formatDate(row.startDate)}</td>
                     <td className="px-4 py-3 text-sm text-zinc-700">{formatDate(row.endDate)}</td>
