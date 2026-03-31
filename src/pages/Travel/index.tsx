@@ -615,34 +615,34 @@ export default function TravelIndexPage() {
             <thead className="bg-zinc-50 sticky top-0 z-20 shadow-[0_1px_0_0_#e4e4e7]">
               {viewMode === "entregas" ? (
                 <tr>
-                  <th className="px-4 py-3 text-left w-10 bg-zinc-50">
-                    <input type="checkbox" checked={invoices.length > 0 && selectedInvoiceIds.length === invoices.length} onChange={toggleSelectAllInvoices} disabled={invoices.length === 0} className="h-4 w-4 rounded border-zinc-300 text-zinc-900 cursor-pointer" />
+                  <th className="px-4 py-3 text-left w-10 bg-zinc-100/80 border-b border-zinc-300">
+                    <input type="checkbox" checked={invoices.length > 0 && selectedInvoiceIds.length === invoices.length} onChange={toggleSelectAllInvoices} disabled={invoices.length === 0} className="h-4 w-4 rounded border-zinc-300 text-[#2E3191] focus:ring-[#2E3191]/20 accent-[#2E3191] cursor-pointer" />
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Número</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Destinatário</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Emissão</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Endereço</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Cidade/UF</th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Valor</th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Peso</th>
-                  <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-zinc-700 bg-zinc-100/80 border-b border-zinc-300">Número</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-zinc-700 bg-zinc-100/80 border-b border-zinc-300">Destinatário</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-zinc-700 bg-zinc-100/80 border-b border-zinc-300">Emissão</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-zinc-700 bg-zinc-100/80 border-b border-zinc-300">Endereço</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-zinc-700 bg-zinc-100/80 border-b border-zinc-300">Cidade/UF</th>
+                  <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-zinc-700 bg-zinc-100/80 border-b border-zinc-300">Valor</th>
+                  <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-zinc-700 bg-zinc-100/80 border-b border-zinc-300">Peso</th>
+                  <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-zinc-700 bg-zinc-100/80 border-b border-zinc-300">Status</th>
                 </tr>
               ) : (
                 <tr>
 
-                  <th className="px-4 py-3 text-left w-10 bg-zinc-50">
+                  <th className="px-4 py-3 text-left w-10 bg-zinc-100/80 border-b border-zinc-300">
                     <input type="checkbox" checked={travels.length > 0 && selectedTravelIds.length === travels.length} onChange={toggleSelectAllTravels} disabled={travels.length === 0} className="h-4 w-4 rounded border-zinc-300 text-[#2E3191] focus:ring-[#2E3191]/20 accent-[#2E3191] cursor-pointer" />
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">ID</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Origem</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Início</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Fim</th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Qtd NFs</th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Qtd Pontos</th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Distância</th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Valor</th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Peso</th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Cubagem</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-zinc-700 bg-zinc-100/80 border-b border-zinc-300">ID</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-zinc-700 bg-zinc-100/80 border-b border-zinc-300">Origem</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-zinc-700 bg-zinc-100/80 border-b border-zinc-300">Início</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-zinc-700 bg-zinc-100/80 border-b border-zinc-300">Fim</th>
+                  <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-zinc-700 bg-zinc-100/80 border-b border-zinc-300">Qtd NFs</th>
+                  <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-zinc-700 bg-zinc-100/80 border-b border-zinc-300">Qtd Pontos</th>
+                  <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-zinc-700 bg-zinc-100/80 border-b border-zinc-300">Distância</th>
+                  <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-zinc-700 bg-zinc-100/80 border-b border-zinc-300">Valor</th>
+                  <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-zinc-700 bg-zinc-100/80 border-b border-zinc-300">Peso</th>
+                  <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-zinc-700 bg-zinc-100/80 border-b border-zinc-300">Cubagem</th>
                 </tr>
               )}
             </thead>

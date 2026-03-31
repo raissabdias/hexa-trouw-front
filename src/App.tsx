@@ -1,3 +1,4 @@
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { MenuLayout } from "./components/MenuLayout";
 import InvoicesIndexPage from "./pages/Invoices";
 import LocationsIndexPage from "./pages/Locations";
@@ -5,14 +6,16 @@ import TravelIndexPage from "./pages/Travel";
 
 function App() {
   return (
-    <MenuLayout
-      defaultActive="travel"
-      views={{
-        invoices: <InvoicesIndexPage />,
-        locations: <LocationsIndexPage />,
-        travel: <TravelIndexPage />,
-      }}
-    />
+    <BrowserRouter>
+      <Routes>
+        <Route element={<MenuLayout />}>
+          <Route path="/" element={<Navigate to="/travel" replace />} />
+          <Route path="/travel" element={<TravelIndexPage />} />
+          <Route path="/invoices" element={<InvoicesIndexPage />} />
+          <Route path="/locations" element={<LocationsIndexPage />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   )
 }
 

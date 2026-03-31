@@ -465,24 +465,24 @@ export default function InvoicesIndexPage() {
       <div className="mt-4 overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-zinc-200">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-zinc-200">
-            <thead className="bg-zinc-50">
+            <thead className="bg-zinc-100/80 border-b border-zinc-300">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600">
+                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-zinc-700">
                   Número
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600">
+                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-zinc-700">
                   Destinatário
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600">
+                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-zinc-700">
                   Cidade/UF
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-600">
+                <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-zinc-700">
                   Peso
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-600">
+                <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-zinc-700">
                   Volume
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-zinc-600">
+                <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-zinc-700">
                   Status
                 </th>
               </tr>
