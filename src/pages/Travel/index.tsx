@@ -193,7 +193,6 @@ export default function TravelIndexPage() {
   }, [search, viewMode]);
 
   const handleInvoiceRowClick = useCallback((invoice: InvoiceApiItem) => {
-    setActiveMarkerId(`inv-${invoice.id}`);
     const latStr = invoice.recipient?.address?.latitude;
     const lngStr = invoice.recipient?.address?.longitude;
     if (latStr && lngStr) {
@@ -211,8 +210,6 @@ export default function TravelIndexPage() {
   }, []);
 
   const handleTravelRowClick = useCallback((travel: TravelApiItem) => {
-    setActiveMarkerId(`tvl-${travel.id}-0`);
-
     const pts = travel.travelPoints;
     if (pts && pts.length > 0 && mapRef.current) {
       const first = pts[0];
@@ -444,6 +441,7 @@ export default function TravelIndexPage() {
                               toggleSelectInvoice(inv.id);
                             }
                           }}
+                          onRightClick={() => setActiveMarkerId(`inv-${inv.id}`)}
                           icon={{
                             path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
                             fillColor: "#71717a",
@@ -479,9 +477,9 @@ export default function TravelIndexPage() {
                     position={{ lat: inv.displayLat, lng: inv.displayLng }}
                     onClick={() => {
                       handleInvoiceRowClick(inv);
-                      // In case they want to deselect by clicking a selected marker
                       toggleSelectInvoice(inv.id);
                     }}
+                    onRightClick={() => setActiveMarkerId(`inv-${inv.id}`)}
                     icon={{
                       path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
                       fillColor: "#2E3191",
@@ -532,11 +530,11 @@ export default function TravelIndexPage() {
                     key={`tvl-mk-${m.travelId}-${idx}`}
                     position={{ lat: m.lat, lng: m.lng }}
                     onClick={() => {
-                      setActiveMarkerId(`tvl-${m.travelId}-${idx}`);
                       if (!selectedTravelIds.includes(m.travelId)) {
                         toggleSelectTravel(m.travelId);
                       }
                     }}
+                    onRightClick={() => setActiveMarkerId(`tvl-${m.travelId}-${idx}`)}
                     icon={{
                       path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
                       fillColor: m.color || "#3b82f6",
