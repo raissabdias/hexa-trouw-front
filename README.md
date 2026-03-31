@@ -1,73 +1,94 @@
-# React + TypeScript + Vite
+# Travel Hexa+
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Sistema moderno de gestão logística focado em roteirização inteligente e controle de entregas em tempo real. 
 
-Currently, two official plugins are available:
+O Travel Hexa+ permite que operadores logísticos planejem viagens, gerenciem notas fiscais e visualizem rotas geográficas de forma intuitiva e eficiente através de uma interface premium e de alta performance.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## Funcionalidades Principais
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+*   **Dashboard de Viagens**: Mapa interativo integrado ao Google Maps para visualização de rotas e pontos de entrega.
+*   **Roteirização Inteligente**: Criação de viagens a partir de notas fiscais selecionadas com cálculo automático de pontos de parada.
+*   **Gestão de Notas Fiscais**: Listagem e filtragem de notas disponíveis para embarque (availableOnly).
+*   **Mapa Avançado**: 
+    - Suporte a múltiplos pins com cores de marca.
+    - Detalhes (InfoWindow) acessíveis via clique com o botão direito.
+    - Sincronização em tempo real entre tabela e mapa.
+*   **Navegação via URL**: Acesso direto a módulos de Notas, Locais e Viagens através de rotas dedicadas (/travel, /invoices, /locations).
+*   **Controle de Ciclo de Vida**: Ferramentas para criação e exclusão de viagens com retorno automático das notas ao estoque de disponíveis.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Tecnologias Utilizadas
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+*   **Core**: [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
+*   **Build Tool**: [Vite 6](https://vitejs.dev/)
+*   **Mapas**: [@react-google-maps/api](https://www.npmjs.com/package/@react-google-maps/api)
+*   **Estilização**: [Tailwind CSS](https://tailwindcss.com/)
+*   **Ícones**: [Lucide React](https://lucide.dev/)
+*   **Roteamento**: [React Router Dom](https://reactrouter.com/)
+*   **HTTP**: [Axios](https://axios-http.com/)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Configuração do Ambiente
+
+### Pré-requisitos
+*   Node.js 20+
+*   NPM ou Yarn
+*   Chave de API do Google Maps (com Maps JavaScript API habilitada)
+
+### Variáveis de Ambiente (.env)
+Crie um arquivo .env na raiz do projeto com as seguintes variáveis:
+
+```env
+VITE_GOOGLE_MAPS_API_KEY=sua_chave_aqui
+VITE_ORIGIN_ID=id_do_ponto_de_origem_padrao
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Como Executar
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 1. Instalação de Dependências
+```bash
+npm install
 ```
+
+### 2. Rodar em Desenvolvimento
+```bash
+npm run dev
+```
+Acesse http://localhost:5173 no seu navegador.
+
+### 3. Build para Produção
+```bash
+npm run build
+```
+
+---
+
+## Docker Support
+
+O projeto está pronto para rodar em containers:
+
+```bash
+# Subir com build
+docker-compose up --build
+```
+
+---
+
+## Estrutura do Projeto
+
+*   src/components: Componentes reutilizáveis (Layouts, Cabeçalhos).
+*   src/pages: Telas principais (Viagens, Notas Fiscais, Locais).
+*   src/services: Configuração de API (Axios).
+*   src/utils: Funções utilitárias (Decodificação de Polylines).
+
+---
+
+## Licença
+
+Este projeto é desenvolvido para fins de gestão logística interna. Todos os direitos reservados.
