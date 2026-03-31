@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import { Trash2 } from "lucide-react";
 import {
   GoogleMap,
   MarkerF,
@@ -169,28 +170,54 @@ export default function TravelIndexPage() {
   }, [fetchInvoices, viewMode]);
 
   // Fetch Travels
+  const fetchTravels = useCallback(async (isCancelled?: () => boolean) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await api.get<ApiResponse<TravelApiItem[]>, ApiResponse<TravelApiItem[]>>("/travels", {
+        params: { page: 1, limit: 100, search: search.trim() || undefined },
+      });
+      if (isCancelled?.()) return;
+      setTravels(data.data ?? []);
+    } catch (e) {
+      if (isCancelled?.()) return;
+      setError(e instanceof Error ? e.message : "Erro ao carregar viagens.");
+    } finally {
+      if (!isCancelled?.()) setLoading(false);
+    }
+  }, [search]);
+
   useEffect(() => {
     if (viewMode !== "viagens") return;
     let cancelled = false;
-    async function load() {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await api.get<ApiResponse<TravelApiItem[]>, ApiResponse<TravelApiItem[]>>("/travels", {
-          params: { page: 1, limit: 100, search: search.trim() || undefined },
-        });
-        if (cancelled) return;
-        setTravels(data.data ?? []);
-      } catch (e) {
-        if (cancelled) return;
-        setError(e instanceof Error ? e.message : "Erro ao carregar viagens.");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-    const timer = setTimeout(() => void load(), 400);
+    const timer = setTimeout(() => void fetchTravels(() => cancelled), 400);
     return () => { cancelled = true; clearTimeout(timer); };
-  }, [search, viewMode]);
+  }, [fetchTravels, viewMode]);
+
+  const handleDeleteTravel = async (id: number) => {
+    if (!window.confirm("Tem certeza que deseja excluir esta viagem?")) return;
+    
+    try {
+      setLoading(true);
+      const res = await api.delete<ApiResponse<void>, ApiResponse<void>>(`/travels/${id}`);
+      if (res.success) {
+        // Se a viagem excluída estava selecionada, limpa a seleção
+        setSelectedTravelIds(prev => prev.filter(tid => tid !== id));
+        // Se era o marcador ativo, limpa
+        if (activeMarkerId?.startsWith(`tvl-${id}`)) setActiveMarkerId(null);
+        
+        // Recarrega as listas
+        void fetchTravels();
+        void fetchInvoices(); // Notas voltam a ficar disponíveis
+      } else {
+        alert(res.message || "Erro ao excluir viagem.");
+      }
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Erro ao excluir viagem.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleInvoiceRowClick = useCallback((invoice: InvoiceApiItem) => {
     const latStr = invoice.recipient?.address?.latitude;
@@ -649,6 +676,7 @@ export default function TravelIndexPage() {
                   <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-zinc-700 bg-zinc-100/80 border-b border-zinc-300">Valor</th>
                   <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-zinc-700 bg-zinc-100/80 border-b border-zinc-300">Peso</th>
                   <th className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-zinc-700 bg-zinc-100/80 border-b border-zinc-300">Cubagem</th>
+                  <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wider text-zinc-700 bg-zinc-100/80 border-b border-zinc-300">Ações</th>
                 </tr>
               )}
             </thead>
@@ -714,6 +742,15 @@ export default function TravelIndexPage() {
                     <td className="px-4 py-3 text-right text-sm text-[#2E3191] font-medium">{Number(row.totalValue).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
                     <td className="px-4 py-3 text-right text-sm text-zinc-700">{Number(row.totalWeight).toLocaleString("pt-BR")} kg</td>
                     <td className="px-4 py-3 text-right text-sm text-zinc-700">{Number(row.totalVolume).toLocaleString("pt-BR", { minimumFractionDigits: 4, maximumFractionDigits: 4 })} m³</td>
+                    <td className="px-4 py-3 text-center text-sm" onClick={e => e.stopPropagation()}>
+                      <button
+                        onClick={() => handleDeleteTravel(row.id)}
+                        className="rounded-md p-1.5 text-zinc-400 hover:bg-red-50 hover:text-red-600 transition-all"
+                        title="Excluir Viagem"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </td>
                   </tr>
                 ))
               )}
