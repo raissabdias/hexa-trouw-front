@@ -387,13 +387,13 @@ export default function TravelIndexPage() {
         <div className="absolute top-4 left-4 z-10 bg-white p-1 rounded-full shadow-xl ring-1 ring-zinc-200 flex items-center gap-1">
           <button
             onClick={() => { setViewMode("entregas"); setActiveMarkerId(null); setSearch(""); }}
-            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${viewMode === "entregas" ? "bg-emerald-600 text-white shadow-md scale-105" : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100"}`}
+            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${viewMode === "entregas" ? "bg-[#2E3191] text-white shadow-md scale-105" : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100"}`}
           >
             Entregas
           </button>
           <button
             onClick={() => { setViewMode("viagens"); setActiveMarkerId(null); setSearch(""); }}
-            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${viewMode === "viagens" ? "bg-blue-600 text-white shadow-md scale-105" : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100"}`}
+            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${viewMode === "viagens" ? "bg-[#2E3191] text-white shadow-md scale-105" : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100"}`}
           >
             Viagens
           </button>
@@ -454,7 +454,7 @@ export default function TravelIndexPage() {
                                   <span className="sr-only">Fechar</span>
                                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                                 </button>
-                                <span className="mb-2 inline-flex items-center rounded-full bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-600/20 w-max">Nota {inv.number}</span>
+                            <span className="mb-2 inline-flex items-center rounded-full bg-[#2E3191]/10 px-2 py-1 text-xs font-semibold text-[#2E3191] ring-1 ring-[#2E3191]/20 w-max">Nota {inv.number}</span>
                                 <h3 className="text-sm font-bold text-zinc-900 line-clamp-2">{inv.recipient?.name?.toUpperCase() || "—"}</h3>
                                 <div className="mt-2 text-xs text-zinc-600 border-t border-zinc-100 pt-2">{inv.recipient?.address?.city} / {inv.recipient?.address?.state}</div>
                               </div>
@@ -476,8 +476,8 @@ export default function TravelIndexPage() {
                     }}
                     icon={{
                       path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
-                      fillColor: "#059669",
-                      fillOpacity: 1,
+                      fillColor: "#2E3191",
+                      fillOpacity: 0.8,
                       strokeWeight: 2,
                       strokeColor: "#ffffff",
                       scale: 1.5,
@@ -492,7 +492,7 @@ export default function TravelIndexPage() {
                               <span className="sr-only">Fechar</span>
                               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                             </button>
-                            <span className="mb-2 inline-flex items-center rounded-full bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-600/20 w-max">Nota {inv.number}</span>
+                            <span className="mb-2 inline-flex items-center rounded-full bg-[#2E3191]/10 px-2 py-1 text-xs font-semibold text-[#2E3191] ring-1 ring-[#2E3191]/20 w-max">Nota {inv.number}</span>
                             <h3 className="text-sm font-bold text-zinc-900 line-clamp-2">{inv.recipient?.name?.toUpperCase() || "—"}</h3>
                             <div className="mt-2 text-xs text-zinc-600 border-t border-zinc-100 pt-2">{inv.recipient?.address?.city} / {inv.recipient?.address?.state}</div>
                           </div>
@@ -511,7 +511,7 @@ export default function TravelIndexPage() {
                     key={`tvl-poly-${poly.travelId}`}
                     path={poly.path}
                     options={{
-                      strokeColor: poly.isSelected ? "#059669" : poly.color || "#3b82f6",
+                      strokeColor: poly.isSelected ? "#2E3191" : poly.color || "#2E3191",
                       strokeOpacity: poly.isSelected ? 1.0 : 0.6,
                       strokeWeight: poly.isSelected ? 5 : 3,
                       zIndex: poly.isSelected ? 2 : 1
@@ -534,7 +534,7 @@ export default function TravelIndexPage() {
                       fillColor: m.color || "#3b82f6",
                       fillOpacity: 1,
                       strokeWeight: m.isSelected ? 2 : 1,
-                      strokeColor: m.isSelected ? "#059669" : "#ffffff",
+                      strokeColor: m.isSelected ? "#2E3191" : "#ffffff",
                       scale: m.isSelected ? 1.3 : 1.0,
                       anchor: new window.google.maps.Point(12, 24),
                     }}
@@ -547,7 +547,7 @@ export default function TravelIndexPage() {
                             <span className="sr-only">Fechar</span>
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                           </button>
-                          <span className="mb-2 inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700 ring-1 ring-blue-600/20 w-max">Viagem #{m.travelId}</span>
+                          <span className="mb-2 inline-flex items-center rounded-full bg-[#2E3191]/10 px-2 py-1 text-xs font-semibold text-[#2E3191] ring-1 ring-[#2E3191]/20 w-max">Viagem #{m.travelId}</span>
                           <h3 className="text-sm font-bold text-zinc-900 line-clamp-2">{m.point.name.toUpperCase()}</h3>
                           <div className="mt-2 text-xs text-zinc-600 border-t border-zinc-100 pt-2">{m.point.address.city} / {m.point.address.state}</div>
                         </div>
@@ -573,27 +573,27 @@ export default function TravelIndexPage() {
           <div className="flex-1 flex justify-start sm:justify-center">
             {viewMode === "entregas" && invoiceStats && (
               <div className="flex items-center gap-3">
-                <div className="flex items-center gap-3 text-xs font-medium text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full ring-1 ring-inset ring-emerald-600/20">
+                <div className="flex items-center gap-3 text-xs font-medium text-[#2E3191] bg-[#2E3191]/10 px-3 py-1.5 rounded-full ring-1 ring-inset ring-[#2E3191]/20">
                   <span>{invoiceStats.count} nota{invoiceStats.count > 1 ? "s" : ""}</span>
-                  <span className="w-1 h-1 rounded-full bg-emerald-300"></span>
+                  <span className="w-1 h-1 rounded-full bg-[#2E3191]/30"></span>
                   <span>{invoiceStats.weight.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kg</span>
-                  <span className="w-1 h-1 rounded-full bg-emerald-300"></span>
+                  <span className="w-1 h-1 rounded-full bg-[#2E3191]/30"></span>
                   <span>{invoiceStats.volume.toLocaleString('pt-BR', { minimumFractionDigits: 4, maximumFractionDigits: 4 })} m³</span>
                 </div>
                 <button
                   onClick={() => setIsRoutingModalOpen(true)}
-                  className="rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition-colors"
+                  className="rounded-full bg-[#2E3191] px-4 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-[#1E2266] transition-colors"
                 >
                   Roteirizar
                 </button>
               </div>
             )}
             {viewMode === "viagens" && travelStats && (
-              <div className="flex items-center gap-3 text-xs font-medium text-blue-700 bg-blue-50 px-3 py-1.5 rounded-full ring-1 ring-inset ring-blue-600/20">
+              <div className="flex items-center gap-3 text-xs font-medium text-[#2E3191] bg-[#2E3191]/10 px-3 py-1.5 rounded-full ring-1 ring-inset ring-[#2E3191]/20">
                 <span>{travelStats.count} viagem(s)</span>
-                <span className="w-1 h-1 rounded-full bg-blue-300"></span>
+                <span className="w-1 h-1 rounded-full bg-[#2E3191]/30"></span>
                 <span>{travelStats.invoicesCount} NFs</span>
-                <span className="w-1 h-1 rounded-full bg-blue-300"></span>
+                <span className="w-1 h-1 rounded-full bg-[#2E3191]/30"></span>
                 <span>{travelStats.weight.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kg</span>
               </div>
             )}
@@ -631,7 +631,7 @@ export default function TravelIndexPage() {
                 <tr>
 
                   <th className="px-4 py-3 text-left w-10 bg-zinc-50">
-                    <input type="checkbox" checked={travels.length > 0 && selectedTravelIds.length === travels.length} onChange={toggleSelectAllTravels} disabled={travels.length === 0} className="h-4 w-4 rounded border-zinc-300 text-zinc-900 cursor-pointer" />
+                    <input type="checkbox" checked={travels.length > 0 && selectedTravelIds.length === travels.length} onChange={toggleSelectAllTravels} disabled={travels.length === 0} className="h-4 w-4 rounded border-zinc-300 text-[#2E3191] focus:ring-[#2E3191]/20 accent-[#2E3191] cursor-pointer" />
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">ID</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Origem</th>
@@ -654,7 +654,7 @@ export default function TravelIndexPage() {
               ) : viewMode === "entregas" ? (
                 invoices.length === 0 ? <tr><td colSpan={10} className="px-4 py-10 text-center text-sm text-zinc-500">Nenhuma nota fiscal.</td></tr> :
                 invoices.map((row) => (
-                  <tr key={row.id} onClick={() => handleInvoiceRowClick(row)} className={`cursor-pointer hover:bg-zinc-50 ${selectedInvoiceIds.includes(row.id) ? "bg-emerald-50/50" : ""}`}>
+                  <tr key={row.id} onClick={() => handleInvoiceRowClick(row)} className={`cursor-pointer hover:bg-zinc-50 ${selectedInvoiceIds.includes(row.id) ? "bg-[#2E3191]/5" : ""}`}>
                     <td className="px-4 py-3 text-sm" onClick={e => e.stopPropagation()}>
                       <input
                         type="checkbox"
@@ -665,7 +665,7 @@ export default function TravelIndexPage() {
                             handleInvoiceRowClick(row);
                           }
                         }}
-                        className="h-4 w-4 rounded border-zinc-300"
+                        className="h-4 w-4 rounded border-zinc-300 text-[#2E3191] focus:ring-[#2E3191]/20 accent-[#2E3191] cursor-pointer"
                       />
                     </td>
                     <td className="px-4 py-3 text-sm font-medium text-zinc-900">{row.number || "—"}</td>
@@ -673,7 +673,7 @@ export default function TravelIndexPage() {
                     <td className="px-4 py-3 text-sm text-zinc-700">{formatDate(row.issuedAt)}</td>
                     <td className="px-4 py-3 text-sm text-zinc-700">{row.recipient?.address?.address || "—"}</td>
                     <td className="px-4 py-3 text-sm text-zinc-700">{row.recipient?.address?.city}/{row.recipient?.address?.state}</td>
-                    <td className="px-4 py-3 text-right text-sm text-emerald-700">{row.value?.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
+                    <td className="px-4 py-3 text-right text-sm text-[#2E3191]">{row.value?.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
                     <td className="px-4 py-3 text-right text-sm text-zinc-700">{row.weight?.toLocaleString("pt-BR")} kg</td>
                     <td className="px-4 py-3 text-center text-sm"><span className="inline-flex rounded-full bg-zinc-100 px-2 text-xs">{row.statusDescription}</span></td>
                   </tr>
@@ -681,7 +681,7 @@ export default function TravelIndexPage() {
               ) : (
                 travels.length === 0 ? <tr><td colSpan={12} className="px-4 py-10 text-center text-sm text-zinc-500">Nenhuma viagem encontrada.</td></tr> :
                 travels.map((row) => (
-                  <tr key={row.id} onClick={() => handleTravelRowClick(row)} className={`cursor-pointer hover:bg-zinc-50 ${selectedTravelIds.includes(row.id) ? "bg-blue-50/50" : ""}`}>
+                  <tr key={row.id} onClick={() => handleTravelRowClick(row)} className={`cursor-pointer hover:bg-zinc-50 ${selectedTravelIds.includes(row.id) ? "bg-[#2E3191]/5" : ""}`}>
                     <td className="px-4 py-3 text-sm" onClick={e => e.stopPropagation()}>
                       <input
                         type="checkbox"
@@ -692,11 +692,11 @@ export default function TravelIndexPage() {
                             handleTravelRowClick(row);
                           }
                         }}
-                        className="h-4 w-4 rounded border-zinc-300 cursor-pointer"
+                        className="h-4 w-4 rounded border-zinc-300 text-[#2E3191] focus:ring-[#2E3191]/20 accent-[#2E3191] cursor-pointer"
                       />
                     </td>
                     <td className="px-4 py-3 text-sm font-medium text-zinc-900 flex items-center gap-2">
-                       <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: row.color || '#3b82f6' }}></span>
+                       <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: row.color || '#2E3191' }}></span>
                        #{row.id}
                     </td>
                     <td className="px-4 py-3 text-sm text-zinc-700">{row.origin?.address?.city ? `${row.origin.address.city}/${row.origin.address.state}` : row.origin?.name || "—"}</td>
@@ -705,7 +705,7 @@ export default function TravelIndexPage() {
                     <td className="px-4 py-3 text-right text-sm text-zinc-700">{row.invoiceQuantity}</td>
                     <td className="px-4 py-3 text-right text-sm text-zinc-700">{row.locationQuantity}</td>
                     <td className="px-4 py-3 text-right text-sm text-zinc-700">{(Number(row.totalDistance) / 1000).toLocaleString("pt-BR")} km</td>
-                    <td className="px-4 py-3 text-right text-sm text-blue-700 font-medium">{Number(row.totalValue).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
+                    <td className="px-4 py-3 text-right text-sm text-[#2E3191] font-medium">{Number(row.totalValue).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
                     <td className="px-4 py-3 text-right text-sm text-zinc-700">{Number(row.totalWeight).toLocaleString("pt-BR")} kg</td>
                     <td className="px-4 py-3 text-right text-sm text-zinc-700">{Number(row.totalVolume).toLocaleString("pt-BR", { minimumFractionDigits: 4, maximumFractionDigits: 4 })} m³</td>
                   </tr>
@@ -732,7 +732,7 @@ export default function TravelIndexPage() {
                 type="datetime-local"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-full rounded-xl border border-zinc-200 bg-zinc-50 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                className="w-full rounded-xl border border-zinc-200 bg-zinc-50 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#2E3191]/20 focus:border-[#2E3191] transition-all"
               />
             </div>
 
@@ -747,7 +747,7 @@ export default function TravelIndexPage() {
               <button
                 disabled={isRouting}
                 onClick={() => void handleCreateTravel()}
-                className="rounded-xl bg-emerald-600 px-6 py-2 text-sm font-bold text-white shadow-lg hover:bg-emerald-700 transition-all disabled:opacity-50 flex items-center gap-2"
+                className="rounded-xl bg-[#2E3191] px-6 py-2 text-sm font-bold text-white shadow-lg hover:bg-[#1E2266] transition-all disabled:opacity-50 flex items-center gap-2"
               >
                 {isRouting ? (
                   <>

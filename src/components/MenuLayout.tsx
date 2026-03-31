@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from "react";
-import { FileText, MapPin, Plane } from "lucide-react";
+import { FileText, MapPin, Truck } from "lucide-react";
 
 export type MenuKey = "invoices" | "locations" | "travel";
 
@@ -12,7 +12,7 @@ type MenuItem = {
 const ITEMS: MenuItem[] = [
   { key: "invoices", label: "Notas Fiscais", icon: FileText },
   { key: "locations", label: "Locais", icon: MapPin },
-  { key: "travel", label: "Viagem", icon: Plane },
+  { key: "travel", label: "Viagem", icon: Truck },
 ];
 
 export function MenuLayout(props: {
@@ -51,7 +51,7 @@ export function MenuLayout(props: {
                     className={[
                       "inline-flex shrink-0 items-center gap-2 rounded-md px-3 py-2 text-sm font-medium",
                       isActive
-                        ? "bg-zinc-900 text-white"
+                        ? "bg-[#2E3191] text-white shadow-sm"
                         : "text-zinc-700 hover:bg-zinc-100",
                     ].join(" ")}
                     aria-current={isActive ? "page" : undefined}

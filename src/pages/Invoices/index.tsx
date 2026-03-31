@@ -285,7 +285,7 @@ export default function InvoicesIndexPage() {
               <select
                 value={form.recipientId}
                 onChange={(e) => updateForm("recipientId", e.target.value)}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-900"
+                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20"
                 disabled={loadingLocations}
               >
                 <option value="">
@@ -311,7 +311,7 @@ export default function InvoicesIndexPage() {
               <input
                 value={form.number}
                 onChange={(e) => updateForm("number", formatOnlyNumbers(e.target.value))}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-900"
+                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20"
                 placeholder="Ex: 125001"
               />
             </div>
@@ -323,7 +323,7 @@ export default function InvoicesIndexPage() {
               <input
                 value={form.series}
                 onChange={(e) => updateForm("series", formatOnlyNumbers(e.target.value))}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-900"
+                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20"
                 placeholder="Ex: 1"
               />
             </div>
@@ -335,7 +335,7 @@ export default function InvoicesIndexPage() {
               <input
                 value={form.value}
                 onChange={(e) => updateForm("value", formatDecimal(e.target.value))}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-900"
+                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20"
                 placeholder="1500,50"
               />
             </div>
@@ -347,7 +347,7 @@ export default function InvoicesIndexPage() {
               <input
                 value={form.weight}
                 onChange={(e) => updateForm("weight", formatDecimal(e.target.value))}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-900"
+                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20"
                 placeholder="10,75"
               />
             </div>
@@ -359,7 +359,7 @@ export default function InvoicesIndexPage() {
               <input
                 value={form.volume}
                 onChange={(e) => updateForm("volume", formatDecimal(e.target.value))}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-900"
+                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20"
                 placeholder="0,50"
               />
             </div>
@@ -372,7 +372,7 @@ export default function InvoicesIndexPage() {
                 type="datetime-local"
                 value={form.issuedAt}
                 onChange={(e) => updateForm("issuedAt", e.target.value)}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-900"
+                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20"
               />
             </div>
 
@@ -384,7 +384,7 @@ export default function InvoicesIndexPage() {
                 type="datetime-local"
                 value={form.scheduledDelivery}
                 onChange={(e) => updateForm("scheduledDelivery", e.target.value)}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-900"
+                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20"
               />
             </div>
 
@@ -409,7 +409,7 @@ export default function InvoicesIndexPage() {
             <button
               type="button"
               onClick={() => void handleCreateInvoice()}
-              className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-70"
+              className="rounded-md bg-[#2E3191] px-4 py-2 text-sm font-medium text-white hover:bg-[#1E2266] disabled:cursor-not-allowed disabled:opacity-70 transition-colors"
               disabled={saving}
             >
               {saving ? "Salvando..." : "Salvar Nota"}
@@ -442,13 +442,13 @@ export default function InvoicesIndexPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar por número, destinatário..."
-              className="w-full rounded-md bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm ring-1 ring-zinc-200 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/20"
+              className="w-full rounded-md bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm ring-1 ring-zinc-200 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-[#2E3191]/20 focus:border-[#2E3191]"
             />
           </div>
 
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-zinc-800"
+            className="inline-flex items-center gap-2 rounded-md bg-[#2E3191] px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#1E2266] transition-colors"
             onClick={() => {
               setMode("create");
               setFormError(null);

@@ -428,7 +428,7 @@ export default function LocationsIndexPage() {
               <input
                 value={form.name}
                 onChange={(e) => updateForm("name", e.target.value)}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-900"
+                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
                 placeholder="Ex.: TRANSPORTADORA TREVO 3 LTDA"
               />
             </div>
@@ -442,7 +442,7 @@ export default function LocationsIndexPage() {
                 onChange={(e) =>
                   updateForm("document", formatDocumentInput(e.target.value))
                 }
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-900"
+                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
                 placeholder="000.000.000-00 ou 00.000.000/0000-00"
               />
             </div>
@@ -454,7 +454,7 @@ export default function LocationsIndexPage() {
               <input
                 value={form.radius}
                 onChange={(e) => updateForm("radius", e.target.value)}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-900"
+                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
                 placeholder="50"
               />
             </div>
@@ -466,7 +466,7 @@ export default function LocationsIndexPage() {
               <input
                 value={form.latitude}
                 onChange={(e) => updateForm("latitude", e.target.value)}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-900"
+                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
                 placeholder="-23.5505"
               />
             </div>
@@ -478,7 +478,7 @@ export default function LocationsIndexPage() {
               <input
                 value={form.longitude}
                 onChange={(e) => updateForm("longitude", e.target.value)}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-900"
+                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
                 placeholder="-46.6333"
               />
             </div>
@@ -490,7 +490,7 @@ export default function LocationsIndexPage() {
               <input
                 value={form.street}
                 onChange={(e) => updateForm("street", e.target.value)}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-900"
+                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
                 placeholder="Avenida das Nacoes Unidas"
               />
             </div>
@@ -502,7 +502,7 @@ export default function LocationsIndexPage() {
               <input
                 value={form.number}
                 onChange={(e) => updateForm("number", e.target.value)}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-900"
+                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
                 placeholder="12901"
               />
             </div>
@@ -514,7 +514,7 @@ export default function LocationsIndexPage() {
               <input
                 value={form.neighborhood}
                 onChange={(e) => updateForm("neighborhood", e.target.value)}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-900"
+                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
                 placeholder="Brooklin Novo"
               />
             </div>
@@ -526,7 +526,7 @@ export default function LocationsIndexPage() {
               <input
                 value={form.city}
                 onChange={(e) => updateForm("city", e.target.value)}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-900"
+                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
                 placeholder="São Paulo"
               />
             </div>
@@ -551,7 +551,7 @@ export default function LocationsIndexPage() {
               <input
                 value={form.zipCode}
                 onChange={(e) => updateForm("zipCode", formatZipInput(e.target.value))}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-900"
+                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
                 placeholder="04578-000"
               />
             </div>
@@ -577,7 +577,7 @@ export default function LocationsIndexPage() {
                       <input
                         value={addressSearch}
                         onChange={(e) => setAddressSearch(e.target.value)}
-                        className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-900"
+                        className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
                         placeholder="Digite o endereço para buscar no Google Maps"
                       />
                     </Autocomplete>
@@ -635,7 +635,7 @@ export default function LocationsIndexPage() {
             <button
               type="button"
               onClick={() => void handleCreateLocation()}
-              className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-70"
+              className="rounded-md bg-[#2E3191] px-4 py-2 text-sm font-medium text-white hover:bg-[#1E2266] disabled:cursor-not-allowed disabled:opacity-70 transition-colors"
               disabled={saving}
             >
               {saving ? "Salvando..." : "Salvar Local"}
@@ -668,13 +668,13 @@ export default function LocationsIndexPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar por nome, documento, endereço..."
-              className="w-full rounded-md bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm ring-1 ring-zinc-200 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/20"
+              className="w-full rounded-md bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm ring-1 ring-zinc-200 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-[#2E3191]/20 focus:border-[#2E3191]"
             />
           </div>
 
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-zinc-800"
+            className="inline-flex items-center gap-2 rounded-md bg-[#2E3191] px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#1E2266] transition-colors"
             onClick={() => {
               setMode("create");
               setFormError(null);
