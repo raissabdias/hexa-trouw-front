@@ -139,28 +139,34 @@ export default function TravelIndexPage() {
   });
 
   // Fetch Invoices
+  const fetchInvoices = useCallback(async (isCancelled?: () => boolean) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await api.get<ApiResponse<InvoiceApiItem[]>, ApiResponse<InvoiceApiItem[]>>("/invoices", {
+        params: { 
+          page: 1, 
+          limit: 250, 
+          search: search.trim() || undefined,
+          availableOnly: true 
+        },
+      });
+      if (isCancelled?.()) return;
+      setInvoices(data.data ?? []);
+    } catch (e) {
+      if (isCancelled?.()) return;
+      setError(e instanceof Error ? e.message : "Erro ao carregar notas fiscais.");
+    } finally {
+      if (!isCancelled?.()) setLoading(false);
+    }
+  }, [search]);
+
   useEffect(() => {
     if (viewMode !== "entregas") return;
     let cancelled = false;
-    async function load() {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await api.get<ApiResponse<InvoiceApiItem[]>, ApiResponse<InvoiceApiItem[]>>("/invoices", {
-          params: { page: 1, limit: 250, search: search.trim() || undefined },
-        });
-        if (cancelled) return;
-        setInvoices(data.data ?? []);
-      } catch (e) {
-        if (cancelled) return;
-        setError(e instanceof Error ? e.message : "Erro ao carregar notas fiscais.");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-    const timer = setTimeout(() => void load(), 400);
+    const timer = setTimeout(() => void fetchInvoices(() => cancelled), 400);
     return () => { cancelled = true; clearTimeout(timer); };
-  }, [search, viewMode]);
+  }, [fetchInvoices, viewMode]);
 
   // Fetch Travels
   useEffect(() => {
@@ -257,6 +263,8 @@ export default function TravelIndexPage() {
       if (res.success) {
         setIsRoutingModalOpen(false);
         setSelectedInvoiceIds([]);
+        // Recarregar notas para refletir as disponíveis
+        void fetchInvoices();
         setViewMode("viagens");
         setSelectedTravelIds([res.data.travelId]);
         setActiveMarkerId(`tvl-${res.data.travelId}-0`);
