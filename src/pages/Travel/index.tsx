@@ -427,14 +427,16 @@ export default function TravelIndexPage() {
 
   const travelMarkers = useMemo(() => {
     if (viewMode !== "viagens") return [];
-    const markers: Array<{ lat: number, lng: number, travelId: number, point: TravelPoint, isSelected: boolean, color?: string }> = [];
+    const markers: Array<{ lat: number, lng: number, travelId: number, point: TravelPoint, isSelected: boolean, color?: string, isOrigin: boolean }> = [];
     travels.forEach((t) => {
       const isSelected = selectedTravelIds.includes(t.id);
+      const originLocationId = t.origin?.locationId;
       (t.travelPoints || []).forEach(p => {
         const lat = Number(p.address.latitude);
         const lng = Number(p.address.longitude);
         if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
-          markers.push({ lat, lng, travelId: t.id, point: p, isSelected, color: t.color });
+          const isOrigin = p.stopTypeId === 4 || p.locationId === originLocationId;
+          markers.push({ lat, lng, travelId: t.id, point: p, isSelected, color: t.color, isOrigin });
         }
       });
     });
@@ -628,12 +630,14 @@ export default function TravelIndexPage() {
                     }}
                     onRightClick={() => setActiveMarkerId(`tvl-${m.travelId}-${idx}`)}
                     icon={{
-                      path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
-                      fillColor: m.color || "#3b82f6",
+                      path: m.isOrigin
+                        ? "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm-1-0.5h2v3h3v2h-3v3h-2v-3H8v-2h3z"
+                        : "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+                      fillColor: "#2E3191",
                       fillOpacity: 1,
-                      strokeWeight: m.isSelected ? 2 : 1,
-                      strokeColor: m.isSelected ? "#2E3191" : "#ffffff",
-                      scale: m.isSelected ? 1.3 : 1.0,
+                      strokeWeight: m.isSelected ? 2.5 : 1.5,
+                      strokeColor: "#ffffff",
+                      scale: m.isOrigin ? 1.5 : (m.isSelected ? 1.3 : 1.0),
                       anchor: new window.google.maps.Point(12, 24),
                     }}
                     zIndex={m.isSelected ? 999 : 10}
