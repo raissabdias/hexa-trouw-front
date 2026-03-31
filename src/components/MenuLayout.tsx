@@ -14,7 +14,7 @@ type MenuItem = {
 const ITEMS: MenuItem[] = [
   { key: "invoices", label: "Notas Fiscais", path: "/invoices", icon: FileText },
   { key: "locations", label: "Locais", path: "/locations", icon: MapPin },
-  { key: "travel", label: "Viagem", path: "/travel", icon: Truck },
+  { key: "travel", label: "Viagens", path: "/travel", icon: Truck },
 ];
 
 export function MenuLayout() {
@@ -38,7 +38,7 @@ export function MenuLayout() {
               </div>
             </Link>
 
-            <nav className="-mx-2 flex items-center gap-1 overflow-x-auto px-2">
+            <nav className="-mx-2 flex items-center gap-1 overflow-x-auto overflow-y-hidden px-2 py-1">
               {ITEMS.map((item) => {
                 const Icon = item.icon;
                 return (

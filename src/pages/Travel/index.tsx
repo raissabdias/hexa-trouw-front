@@ -6,7 +6,6 @@ import {
   OverlayViewF,
   PolylineF,
   useJsApiLoader,
-  MarkerClustererF,
 } from "@react-google-maps/api";
 import { decodeFlexPolyline as decode } from "../../utils/flexPolyline";
 import { api, type ApiResponse } from "../../services/api";
@@ -454,32 +453,28 @@ export default function TravelIndexPage() {
             {/* INVOICES MAP RENDER */}
             {viewMode === "entregas" && (
               <>
-                <MarkerClustererF>
-                  {(clusterer) => (
-                    <>
-                      {displayInvoiceMarkers.filter(inv => !selectedInvoiceIds.includes(inv.id)).map((inv) => (
-                        <MarkerF
-                          key={`inv-${inv.id}`}
-                          position={{ lat: inv.displayLat, lng: inv.displayLng }}
-                          clusterer={clusterer}
-                          onClick={() => {
-                            handleInvoiceRowClick(inv);
-                            if (!selectedInvoiceIds.includes(inv.id)) {
-                              toggleSelectInvoice(inv.id);
-                            }
-                          }}
-                          onRightClick={() => setActiveMarkerId(`inv-${inv.id}`)}
-                          icon={{
-                            path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
-                            fillColor: "#71717a",
-                            fillOpacity: 1,
-                            strokeWeight: 1.5,
-                            strokeColor: "#ffffff",
-                            scale: 1.3,
-                            anchor: new window.google.maps.Point(12, 24),
-                          }}
-                          zIndex={1}
-                        >
+                {displayInvoiceMarkers.filter(inv => !selectedInvoiceIds.includes(inv.id)).map((inv) => (
+                  <MarkerF
+                    key={`inv-${inv.id}`}
+                    position={{ lat: inv.displayLat, lng: inv.displayLng }}
+                    onClick={() => {
+                      handleInvoiceRowClick(inv);
+                      if (!selectedInvoiceIds.includes(inv.id)) {
+                        toggleSelectInvoice(inv.id);
+                      }
+                    }}
+                    onRightClick={() => setActiveMarkerId(`inv-${inv.id}`)}
+                    icon={{
+                      path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+                      fillColor: "#3f3f46",
+                      fillOpacity: 1,
+                      strokeWeight: 1.5,
+                      strokeColor: "#ffffff",
+                      scale: 1.3,
+                      anchor: new window.google.maps.Point(12, 24),
+                    }}
+                    zIndex={1}
+                  >
                           {activeMarkerId === `inv-${inv.id}` && (
                             <OverlayViewF position={{ lat: inv.displayLat, lng: inv.displayLng }} mapPaneName="overlayMouseTarget" getPixelPositionOffset={(w, h) => ({ x: -(w / 2), y: -(h + 40) })}>
                               <div className="relative flex w-64 flex-col rounded-xl bg-white shadow-xl ring-1 ring-black/5 p-4">
@@ -493,11 +488,8 @@ export default function TravelIndexPage() {
                               </div>
                             </OverlayViewF>
                           )}
-                        </MarkerF>
-                      ))}
-                    </>
-                  )}
-                </MarkerClustererF>
+                  </MarkerF>
+                ))}
                 {displayInvoiceMarkers.filter(inv => selectedInvoiceIds.includes(inv.id)).map((inv) => (
                   <MarkerF
                     key={`inv-sel-${inv.id}`}
@@ -510,7 +502,7 @@ export default function TravelIndexPage() {
                     icon={{
                       path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
                       fillColor: "#2E3191",
-                      fillOpacity: 0.8,
+                      fillOpacity: 1,
                       strokeWeight: 2,
                       strokeColor: "#ffffff",
                       scale: 1.5,
