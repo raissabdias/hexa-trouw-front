@@ -11,6 +11,7 @@ export default defineConfig({
     host: true,
     strictPort: true,
     port: 5173,
+    allowedHosts: ["hexa-trouw-front.onrender.com"],
     proxy: {
       "/api": {
         target: "https://limited-zonda-trouw-e468592b.koyeb.app",
