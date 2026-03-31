@@ -194,8 +194,12 @@ export default function TravelIndexPage() {
       const lat = Number(latStr);
       const lng = Number(lngStr);
       if (!Number.isNaN(lat) && !Number.isNaN(lng) && mapRef.current) {
-        mapRef.current.panTo({ lat, lng });
-        mapRef.current.setZoom(14);
+        const bounds = mapRef.current.getBounds();
+        const isInViewport = bounds?.contains({ lat, lng });
+        if (!isInViewport) {
+          mapRef.current.panTo({ lat, lng });
+          mapRef.current.setZoom(14);
+        }
       }
     }
   }, []);
@@ -209,8 +213,12 @@ export default function TravelIndexPage() {
       const lat = Number(first.address.latitude);
       const lng = Number(first.address.longitude);
       if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
-        mapRef.current.panTo({ lat, lng });
-        mapRef.current.setZoom(12);
+        const bounds = mapRef.current.getBounds();
+        const isInViewport = bounds?.contains({ lat, lng });
+        if (!isInViewport) {
+          mapRef.current.panTo({ lat, lng });
+          mapRef.current.setZoom(12);
+        }
       }
     }
   }, []);
@@ -422,7 +430,12 @@ export default function TravelIndexPage() {
                           key={`inv-${inv.id}`}
                           position={{ lat: inv.displayLat, lng: inv.displayLng }}
                           clusterer={clusterer}
-                          onClick={() => handleInvoiceRowClick(inv)}
+                          onClick={() => {
+                            handleInvoiceRowClick(inv);
+                            if (!selectedInvoiceIds.includes(inv.id)) {
+                              toggleSelectInvoice(inv.id);
+                            }
+                          }}
                           icon={{
                             path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
                             fillColor: "#71717a",
@@ -456,7 +469,11 @@ export default function TravelIndexPage() {
                   <MarkerF
                     key={`inv-sel-${inv.id}`}
                     position={{ lat: inv.displayLat, lng: inv.displayLng }}
-                    onClick={() => handleInvoiceRowClick(inv)}
+                    onClick={() => {
+                      handleInvoiceRowClick(inv);
+                      // In case they want to deselect by clicking a selected marker
+                      toggleSelectInvoice(inv.id);
+                    }}
                     icon={{
                       path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
                       fillColor: "#059669",
@@ -499,19 +516,25 @@ export default function TravelIndexPage() {
                       strokeWeight: poly.isSelected ? 5 : 3,
                       zIndex: poly.isSelected ? 2 : 1
                     }}
+                    onClick={() => toggleSelectTravel(poly.travelId)}
                   />
                 ))}
                 {travelMarkers.map((m, idx) => (
                   <MarkerF
                     key={`tvl-mk-${m.travelId}-${idx}`}
                     position={{ lat: m.lat, lng: m.lng }}
-                    onClick={() => { setActiveMarkerId(`tvl-${m.travelId}-${idx}`); }}
+                    onClick={() => {
+                      setActiveMarkerId(`tvl-${m.travelId}-${idx}`);
+                      if (!selectedTravelIds.includes(m.travelId)) {
+                        toggleSelectTravel(m.travelId);
+                      }
+                    }}
                     icon={{
                       path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
-                      fillColor: m.isSelected ? "#059669" : m.color || "#3b82f6",
+                      fillColor: m.color || "#3b82f6",
                       fillOpacity: 1,
                       strokeWeight: m.isSelected ? 2 : 1,
-                      strokeColor: "#ffffff",
+                      strokeColor: m.isSelected ? "#059669" : "#ffffff",
                       scale: m.isSelected ? 1.3 : 1.0,
                       anchor: new window.google.maps.Point(12, 24),
                     }}
@@ -543,7 +566,7 @@ export default function TravelIndexPage() {
         <div className="border-b border-zinc-200 bg-zinc-50 px-4 py-3 shrink-0 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="w-full sm:w-72 shrink-0">
             <h2 className="text-sm font-medium text-zinc-900 whitespace-nowrap">
-              {viewMode === "entregas" ? `Entregas Disponíveis (${invoices.length})` : `Viagens Registradas (${travels.length})`}
+              {viewMode === "entregas" ? `Entregas Disponíveis (${invoices.length})` : `Viagens Planejadas (${travels.length})`}
             </h2>
           </div>
 
@@ -633,7 +656,17 @@ export default function TravelIndexPage() {
                 invoices.map((row) => (
                   <tr key={row.id} onClick={() => handleInvoiceRowClick(row)} className={`cursor-pointer hover:bg-zinc-50 ${selectedInvoiceIds.includes(row.id) ? "bg-emerald-50/50" : ""}`}>
                     <td className="px-4 py-3 text-sm" onClick={e => e.stopPropagation()}>
-                      <input type="checkbox" checked={selectedInvoiceIds.includes(row.id)} onChange={() => toggleSelectInvoice(row.id)} className="h-4 w-4 rounded border-zinc-300" />
+                      <input
+                        type="checkbox"
+                        checked={selectedInvoiceIds.includes(row.id)}
+                        onChange={() => {
+                          toggleSelectInvoice(row.id);
+                          if (!selectedInvoiceIds.includes(row.id)) {
+                            handleInvoiceRowClick(row);
+                          }
+                        }}
+                        className="h-4 w-4 rounded border-zinc-300"
+                      />
                     </td>
                     <td className="px-4 py-3 text-sm font-medium text-zinc-900">{row.number || "—"}</td>
                     <td className="px-4 py-3 text-sm text-zinc-700">{row.recipient?.name || "—"}</td>
@@ -650,7 +683,17 @@ export default function TravelIndexPage() {
                 travels.map((row) => (
                   <tr key={row.id} onClick={() => handleTravelRowClick(row)} className={`cursor-pointer hover:bg-zinc-50 ${selectedTravelIds.includes(row.id) ? "bg-blue-50/50" : ""}`}>
                     <td className="px-4 py-3 text-sm" onClick={e => e.stopPropagation()}>
-                      <input type="checkbox" checked={selectedTravelIds.includes(row.id)} onChange={() => toggleSelectTravel(row.id)} className="h-4 w-4 rounded border-zinc-300 cursor-pointer" />
+                      <input
+                        type="checkbox"
+                        checked={selectedTravelIds.includes(row.id)}
+                        onChange={() => {
+                          toggleSelectTravel(row.id);
+                          if (!selectedTravelIds.includes(row.id)) {
+                            handleTravelRowClick(row);
+                          }
+                        }}
+                        className="h-4 w-4 rounded border-zinc-300 cursor-pointer"
+                      />
                     </td>
                     <td className="px-4 py-3 text-sm font-medium text-zinc-900 flex items-center gap-2">
                        <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: row.color || '#3b82f6' }}></span>
