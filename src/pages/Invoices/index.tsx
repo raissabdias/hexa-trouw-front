@@ -35,8 +35,10 @@ type InvoiceApiItem = {
 
 type LocationApiItem = {
   id?: string | number;
+  personId?: string | number;
   description?: string;
   person?: {
+    id?: string | number;
     name?: string;
     document?: string;
     cpfCnpj?: string;
@@ -289,11 +291,16 @@ export default function InvoicesIndexPage() {
                 <option value="">
                   {loadingLocations ? "Carregando locais..." : "Selecione um destinatário"}
                 </option>
-                {locations.map((loc) => (
-                  <option key={String(loc.id)} value={String(loc.id)}>
-                    {getLocationName(loc)}
-                  </option>
-                ))}
+                {locations.map((loc) => {
+                  const personId = loc.personId ?? loc.person?.id;
+                  if (!personId) return null;
+                  
+                  return (
+                    <option key={String(loc.id)} value={String(personId)}>
+                      {getLocationName(loc)}
+                    </option>
+                  );
+                })}
               </select>
             </div>
 
