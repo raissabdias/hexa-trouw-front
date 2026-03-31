@@ -449,6 +449,11 @@ export default function TravelIndexPage() {
               streetViewControl: false,
               mapTypeControl: false,
             }}
+            onClick={() => {
+              setSelectedInvoiceIds([]);
+              setSelectedTravelIds([]);
+              setActiveMarkerId(null);
+            }}
           >
             {/* INVOICES MAP RENDER */}
             {viewMode === "entregas" && (
