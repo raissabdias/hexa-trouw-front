@@ -3,6 +3,7 @@ import {
   GoogleMap,
   MarkerF,
   OverlayViewF,
+  PolylineF,
   useJsApiLoader,
   MarkerClustererF,
 } from "@react-google-maps/api";
@@ -31,6 +32,36 @@ type InvoiceApiItem = {
       longitude: string;
     } | null;
   } | null;
+};
+
+type TravelPoint = {
+  locationId: number;
+  sequence: number;
+  name: string;
+  address: {
+    latitude: string;
+    longitude: string;
+    street: string;
+    number: string;
+    neighborhood: string;
+    city: string;
+    state: string;
+    zipCode: string;
+  };
+};
+
+type TravelApiItem = {
+  id: number;
+  invoiceQuantity: number;
+  locationQuantity: number;
+  totalWeight: string;
+  totalVolume: string;
+  startDate: string;
+  endDate: string;
+  totalDistance: string;
+  totalValue: string;
+  origin?: TravelPoint;
+  travelPoints?: TravelPoint[];
 };
 
 const MAPS_LIBRARIES = ["places"];
@@ -63,48 +94,48 @@ function formatDate(iso: string | null) {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
   });
 }
 
-function formatCep(value: string | undefined): string {
-  if (!value) return "—";
-  const digits = value.replace(/\D/g, "").slice(0, 8);
-  if (digits.length < 8) return value;
-  return digits.replace(/^(\d{5})(\d{3})$/, "$1-$2");
-}
+
 
 export default function TravelIndexPage() {
+  const [viewMode, setViewMode] = useState<"entregas" | "viagens">("entregas");
+
   const [invoices, setInvoices] = useState<InvoiceApiItem[]>([]);
+  const [travels, setTravels] = useState<TravelApiItem[]>([]);
+  
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  
+  const [selectedInvoiceIds, setSelectedInvoiceIds] = useState<number[]>([]);
+  const [selectedTravelIds, setSelectedTravelIds] = useState<number[]>([]);
 
-  const [activeMarkerId, setActiveMarkerId] = useState<number | null>(null);
+  const [activeMarkerId, setActiveMarkerId] = useState<string | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
 
-  const mapsApiKey =
-    (import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined) ?? "";
+  const mapsApiKey = (import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined) ?? "";
   const { isLoaded: isMapsLoaded } = useJsApiLoader({
     id: "locations-google-maps",
     googleMapsApiKey: mapsApiKey,
     libraries: MAPS_LIBRARIES as never,
   });
 
+  // Fetch Invoices
   useEffect(() => {
+    if (viewMode !== "entregas") return;
     let cancelled = false;
     async function load() {
       setLoading(true);
       setError(null);
       try {
-        const data = await api.get<
-          ApiResponse<InvoiceApiItem[]>,
-          ApiResponse<InvoiceApiItem[]>
-        >("/invoices", {
+        const data = await api.get<ApiResponse<InvoiceApiItem[]>, ApiResponse<InvoiceApiItem[]>>("/invoices", {
           params: { page: 1, limit: 250, search: search.trim() || undefined },
         });
-
         if (cancelled) return;
         setInvoices(data.data ?? []);
       } catch (e) {
@@ -114,22 +145,38 @@ export default function TravelIndexPage() {
         if (!cancelled) setLoading(false);
       }
     }
+    const timer = setTimeout(() => void load(), 400);
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [search, viewMode]);
 
-    const timer = setTimeout(() => {
-      void load();
-    }, 400);
+  // Fetch Travels
+  useEffect(() => {
+    if (viewMode !== "viagens") return;
+    let cancelled = false;
+    async function load() {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await api.get<ApiResponse<TravelApiItem[]>, ApiResponse<TravelApiItem[]>>("/travels", {
+          params: { page: 1, limit: 100, search: search.trim() || undefined },
+        });
+        if (cancelled) return;
+        setTravels(data.data ?? []);
+      } catch (e) {
+        if (cancelled) return;
+        setError(e instanceof Error ? e.message : "Erro ao carregar viagens.");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    const timer = setTimeout(() => void load(), 400);
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [search, viewMode]);
 
-    return () => {
-      cancelled = true;
-      clearTimeout(timer);
-    };
-  }, [search]);
-
-  const handleRowClick = useCallback((invoice: InvoiceApiItem) => {
-    setActiveMarkerId(invoice.id);
+  const handleInvoiceRowClick = useCallback((invoice: InvoiceApiItem) => {
+    setActiveMarkerId(`inv-${invoice.id}`);
     const latStr = invoice.recipient?.address?.latitude;
     const lngStr = invoice.recipient?.address?.longitude;
-
     if (latStr && lngStr) {
       const lat = Number(latStr);
       const lng = Number(lngStr);
@@ -140,23 +187,43 @@ export default function TravelIndexPage() {
     }
   }, []);
 
-  const toggleSelectAll = () => {
-    if (selectedIds.length === invoices.length) {
-      setSelectedIds([]);
-    } else {
-      setSelectedIds(invoices.map((inv) => inv.id));
+  const handleTravelRowClick = useCallback((travel: TravelApiItem) => {
+    setActiveMarkerId(`tvl-${travel.id}-0`);
+
+    const pts = travel.travelPoints;
+    if (pts && pts.length > 0 && mapRef.current) {
+      const first = pts[0];
+      const lat = Number(first.address.latitude);
+      const lng = Number(first.address.longitude);
+      if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
+        mapRef.current.panTo({ lat, lng });
+        mapRef.current.setZoom(12);
+      }
     }
+  }, []);
+
+  const toggleSelectAllTravels = () => {
+    if (selectedTravelIds.length === travels.length) setSelectedTravelIds([]);
+    else setSelectedTravelIds(travels.map((t) => t.id));
   };
 
-  const toggleSelect = (id: number) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
+  const toggleSelectTravel = (id: number) => {
+    setSelectedTravelIds((prev) => prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]);
   };
 
-  const displayMarkers = useMemo(() => {
+  const toggleSelectAllInvoices = () => {
+    if (selectedInvoiceIds.length === invoices.length) setSelectedInvoiceIds([]);
+    else setSelectedInvoiceIds(invoices.map((inv) => inv.id));
+  };
+
+  const toggleSelectInvoice = (id: number) => {
+    setSelectedInvoiceIds((prev) => prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]);
+  };
+
+
+
+  const displayInvoiceMarkers = useMemo(() => {
     const coordinateCounts = new Map<string, number>();
-    
     return invoices
       .filter((inv) => {
         const lat = Number(inv.recipient?.address?.latitude);
@@ -166,54 +233,103 @@ export default function TravelIndexPage() {
       .map((inv) => {
         let lat = Number(inv.recipient?.address?.latitude);
         let lng = Number(inv.recipient?.address?.longitude);
-        
         const key = `${lat},${lng}`;
         const count = coordinateCounts.get(key) || 0;
-        
         if (count > 0) {
-          // Deslocamento em espiral (Jittering) de ~15 metros (0.00015 lat/lng) para afastar pinos perfeitamente sobrepostos
           const radius = 0.00015 * Math.ceil(count / 6); 
-          const angle = count * (Math.PI / 3); // 60 graus
+          const angle = count * (Math.PI / 3);
           lat += radius * Math.cos(angle);
           lng += radius * Math.sin(angle);
         }
-        
         coordinateCounts.set(key, count + 1);
-        
         return { ...inv, displayLat: lat, displayLng: lng };
       });
   }, [invoices]);
 
-  useEffect(() => {
-    if (mapInstance && displayMarkers.length > 0 && window.google) {
-      const bounds = new window.google.maps.LatLngBounds();
-      displayMarkers.forEach((inv) => {
-        bounds.extend(new window.google.maps.LatLng(inv.displayLat, inv.displayLng));
-      });
-      mapInstance.fitBounds(bounds);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapInstance, invoices.length]);
+  const travelPolylines = useMemo(() => {
+    if (viewMode !== "viagens") return [];
+    return travels.map((travel) => {
+      const isSelected = selectedTravelIds.includes(travel.id);
+      const points = (travel.travelPoints || [])
+        .map((p) => ({ lat: Number(p.address.latitude), lng: Number(p.address.longitude) }))
+        .filter((p) => !Number.isNaN(p.lat) && !Number.isNaN(p.lng));
+      return { travelId: travel.id, path: points, isSelected };
+    }).filter((t) => t.path.length > 1);
+  }, [travels, selectedTravelIds, viewMode]);
 
-  const selectionStats = useMemo(() => {
-    if (selectedIds.length === 0) return null;
+  const travelMarkers = useMemo(() => {
+    if (viewMode !== "viagens") return [];
+    const markers: Array<{ lat: number, lng: number, travelId: number, point: TravelPoint, isSelected: boolean }> = [];
+    travels.forEach((t) => {
+      const isSelected = selectedTravelIds.includes(t.id);
+      (t.travelPoints || []).forEach(p => {
+        const lat = Number(p.address.latitude);
+        const lng = Number(p.address.longitude);
+        if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
+          markers.push({ lat, lng, travelId: t.id, point: p, isSelected });
+        }
+      });
+    });
+    return markers;
+  }, [travels, selectedTravelIds, viewMode]);
+
+  useEffect(() => {
+    if (!mapInstance || !window.google) return;
+    const bounds = new window.google.maps.LatLngBounds();
+    let hasPoints = false;
     
-    const selected = invoices.filter(inv => selectedIds.includes(inv.id));
-    
+    if (viewMode === "entregas" && displayInvoiceMarkers.length > 0) {
+      displayInvoiceMarkers.forEach((inv) => {
+        bounds.extend(new window.google.maps.LatLng(inv.displayLat, inv.displayLng));
+        hasPoints = true;
+      });
+    } else if (viewMode === "viagens" && travelMarkers.length > 0) {
+      travelMarkers.forEach((m) => {
+        bounds.extend(new window.google.maps.LatLng(m.lat, m.lng));
+        hasPoints = true;
+      });
+    }
+
+    if (hasPoints) mapInstance.fitBounds(bounds);
+  }, [mapInstance, viewMode, displayInvoiceMarkers.length, travelMarkers.length]);
+
+  const invoiceStats = useMemo(() => {
+    if (selectedInvoiceIds.length === 0) return null;
+    const selected = invoices.filter(inv => selectedInvoiceIds.includes(inv.id));
     const weight = selected.reduce((acc, inv) => acc + (inv.weight ?? 0), 0);
     const volume = selected.reduce((acc, inv) => acc + (inv.volume ?? 0), 0);
-    
-    return {
-      count: selectedIds.length,
-      weight,
-      volume: volume / 1000000
-    };
-  }, [selectedIds, invoices]);
+    return { count: selected.length, weight, volume: volume / 1000000 };
+  }, [selectedInvoiceIds, invoices]);
+
+  const travelStats = useMemo(() => {
+    if (selectedTravelIds.length === 0) return null;
+    const selected = travels.filter(t => selectedTravelIds.includes(t.id));
+    const weight = selected.reduce((acc, t) => acc + Number(t.totalWeight), 0);
+    const volume = selected.reduce((acc, t) => acc + Number(t.totalVolume), 0);
+    const invoicesCount = selected.reduce((acc, t) => acc + t.invoiceQuantity, 0);
+    return { count: selected.length, invoicesCount, weight, volume };
+  }, [selectedTravelIds, travels]);
 
   return (
-    <div className="flex flex-1 flex-col gap-4 min-h-0">
-      {/* MAPA - TOP HALF */}
-      <div className="flex-1 min-h-0 overflow-hidden rounded-lg bg-zinc-100 ring-1 ring-zinc-200">
+    <div className="flex flex-1 flex-col gap-4 min-h-0 relative">
+      <div className="flex-1 min-h-0 overflow-hidden relative rounded-lg bg-zinc-100 ring-1 ring-zinc-200">
+        
+        {/* Toggle View Mode */}
+        <div className="absolute top-4 left-4 z-10 bg-white p-1 rounded-full shadow-xl ring-1 ring-zinc-200 flex items-center gap-1">
+          <button
+            onClick={() => { setViewMode("entregas"); setActiveMarkerId(null); setSearch(""); }}
+            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${viewMode === "entregas" ? "bg-emerald-600 text-white shadow-md scale-105" : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100"}`}
+          >
+            Entregas
+          </button>
+          <button
+            onClick={() => { setViewMode("viagens"); setActiveMarkerId(null); setSearch(""); }}
+            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${viewMode === "viagens" ? "bg-blue-600 text-white shadow-md scale-105" : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100"}`}
+          >
+            Viagens
+          </button>
+        </div>
+
         {!mapsApiKey ? (
           <div className="flex h-full flex-col items-center justify-center p-6 text-center text-sm text-zinc-500">
             <p>Mapa indisponível. Defina a variável VITE_GOOGLE_MAPS_API_KEY no arquivo .env.</p>
@@ -234,384 +350,249 @@ export default function TravelIndexPage() {
               mapTypeControl: false,
             }}
           >
-            <MarkerClustererF>
-              {(clusterer) => (
-                <>
-                  {displayMarkers.filter(inv => !selectedIds.includes(inv.id)).map((inv) => {
-                    const lat = inv.displayLat;
-                    const lng = inv.displayLng;
-
-                    return (
-                      <MarkerF
-                        key={inv.id}
-                        position={{ lat, lng }}
-                        clusterer={clusterer}
-                        onClick={() => handleRowClick(inv)}
-                        icon={{
-                          path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
-                          fillColor: "#71717a",
-                          fillOpacity: 1,
-                          strokeWeight: 1.5,
-                          strokeColor: "#ffffff",
-                          scale: 1.3,
-                          anchor: new window.google.maps.Point(12, 24),
-                        }}
-                        zIndex={1}
-                      >
-                        {activeMarkerId === inv.id && (
-                          <OverlayViewF
-                            position={{ lat, lng }}
-                            mapPaneName="overlayMouseTarget"
-                            getPixelPositionOffset={(width, height) => ({
-                              x: -(width / 2),
-                              y: -(height + 40),
-                            })}
-                          >
-                            <div className="relative flex w-64 flex-col rounded-xl bg-white shadow-xl ring-1 ring-black/5">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setActiveMarkerId(null);
-                                }}
-                                className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-zinc-100 text-zinc-500 hover:bg-zinc-200 hover:text-zinc-900 focus:outline-none transition-colors"
-                              >
-                                <span className="sr-only">Fechar</span>
-                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                              </button>
-
-                              <div className="p-4">
-                                <span className="mb-2 inline-flex items-center rounded-full bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
-                                  Nota {inv.number}
-                                </span>
-                                <h3 className="text-sm font-bold text-zinc-900 line-clamp-2 mt-1">
-                                  {inv.recipient?.name?.toUpperCase() || "—"}
-                                </h3>
-                                
-                                <div className="mt-3 flex flex-col gap-1.5 border-t border-zinc-100 pt-3">
-                                  <div className="flex items-start gap-2 text-xs text-zinc-600">
-                                    <svg className="h-4 w-4 shrink-0 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    </svg>
-                                    <span className="leading-tight">
-                                      {inv.recipient?.address?.city} / {inv.recipient?.address?.state}
-                                    </span>
-                                  </div>
-                                  
-                                  <div className="mt-2 flex items-center justify-between font-medium">
-                                    <span className="text-xs text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded-md">
-                                      Peso: {inv.weight != null ? inv.weight.toLocaleString('pt-BR') : "—"}kg
-                                    </span>
-                                    <span className="text-sm text-emerald-600">
-                                      {inv.value?.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div className="absolute -bottom-2 left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 border-b border-r border-black/5 bg-white" />
-                            </div>
-                          </OverlayViewF>
-                        )}
-                      </MarkerF>
-                    );
-                  })}
-                </>
-              )}
-            </MarkerClustererF>
-            
-            {/* PINOS SELECIONADOS NO TOPO SEM SER ABSORVIDOS: */}
-            {displayMarkers.filter(inv => selectedIds.includes(inv.id)).map((inv) => {
-              const lat = inv.displayLat;
-              const lng = inv.displayLng;
-
-              return (
-                <MarkerF
-                  key={`selected-${inv.id}`}
-                  position={{ lat, lng }}
-                  onClick={() => handleRowClick(inv)}
-                  icon={{
-                    path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
-                    fillColor: "#059669",
-                    fillOpacity: 1,
-                    strokeWeight: 2,
-                    strokeColor: "#ffffff",
-                    scale: 1.5,
-                    anchor: new window.google.maps.Point(12, 24),
-                  }}
-                  zIndex={999}
-                >
-                  {activeMarkerId === inv.id && (
-                    <OverlayViewF
-                      position={{ lat, lng }}
-                      mapPaneName="overlayMouseTarget"
-                      getPixelPositionOffset={(width, height) => ({
-                        x: -(width / 2),
-                        y: -(height + 40),
-                      })}
-                    >
-                      <div className="relative flex w-64 flex-col rounded-xl bg-white shadow-xl ring-1 ring-black/5">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveMarkerId(null);
+            {/* INVOICES MAP RENDER */}
+            {viewMode === "entregas" && (
+              <>
+                <MarkerClustererF>
+                  {(clusterer) => (
+                    <>
+                      {displayInvoiceMarkers.filter(inv => !selectedInvoiceIds.includes(inv.id)).map((inv) => (
+                        <MarkerF
+                          key={`inv-${inv.id}`}
+                          position={{ lat: inv.displayLat, lng: inv.displayLng }}
+                          clusterer={clusterer}
+                          onClick={() => handleInvoiceRowClick(inv)}
+                          icon={{
+                            path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+                            fillColor: "#71717a",
+                            fillOpacity: 1,
+                            strokeWeight: 1.5,
+                            strokeColor: "#ffffff",
+                            scale: 1.3,
+                            anchor: new window.google.maps.Point(12, 24),
                           }}
-                          className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-zinc-100 text-zinc-500 hover:bg-zinc-200 hover:text-zinc-900 focus:outline-none transition-colors"
+                          zIndex={1}
                         >
-                          <span className="sr-only">Fechar</span>
-                          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-
-                        <div className="p-4">
-                          <span className="mb-2 inline-flex items-center rounded-full bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
-                            Nota {inv.number}
-                          </span>
-                          <h3 className="text-sm font-bold text-zinc-900 line-clamp-2 mt-1">
-                            {inv.recipient?.name?.toUpperCase() || "—"}
-                          </h3>
-                          
-                          <div className="mt-3 flex flex-col gap-1.5 border-t border-zinc-100 pt-3">
-                            <div className="flex items-start gap-2 text-xs text-zinc-600">
-                              <svg className="h-4 w-4 shrink-0 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                              </svg>
-                              <span className="leading-tight">
-                                {inv.recipient?.address?.city} / {inv.recipient?.address?.state}
-                              </span>
-                            </div>
-                            
-                            <div className="mt-2 flex items-center justify-between font-medium">
-                              <span className="text-xs text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded-md">
-                                Peso: {inv.weight != null ? inv.weight.toLocaleString('pt-BR') : "—"}kg
-                              </span>
-                              <span className="text-sm text-emerald-600">
-                                {inv.value?.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="absolute -bottom-2 left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 border-b border-r border-black/5 bg-white" />
-                      </div>
-                    </OverlayViewF>
+                          {activeMarkerId === `inv-${inv.id}` && (
+                            <OverlayViewF position={{ lat: inv.displayLat, lng: inv.displayLng }} mapPaneName="overlayMouseTarget" getPixelPositionOffset={(w, h) => ({ x: -(w / 2), y: -(h + 40) })}>
+                              <div className="relative flex w-64 flex-col rounded-xl bg-white shadow-xl ring-1 ring-black/5 p-4">
+                                <button onClick={(e) => { e.stopPropagation(); setActiveMarkerId(null); }} className="absolute right-2 top-2 h-6 w-6 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-500 hover:text-zinc-900">
+                                  <span className="sr-only">Fechar</span>
+                                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                </button>
+                                <span className="mb-2 inline-flex items-center rounded-full bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-600/20 w-max">Nota {inv.number}</span>
+                                <h3 className="text-sm font-bold text-zinc-900 line-clamp-2">{inv.recipient?.name?.toUpperCase() || "—"}</h3>
+                                <div className="mt-2 text-xs text-zinc-600 border-t border-zinc-100 pt-2">{inv.recipient?.address?.city} / {inv.recipient?.address?.state}</div>
+                              </div>
+                            </OverlayViewF>
+                          )}
+                        </MarkerF>
+                      ))}
+                    </>
                   )}
-                </MarkerF>
-              );
-            })}
+                </MarkerClustererF>
+                {displayInvoiceMarkers.filter(inv => selectedInvoiceIds.includes(inv.id)).map((inv) => (
+                  <MarkerF
+                    key={`inv-sel-${inv.id}`}
+                    position={{ lat: inv.displayLat, lng: inv.displayLng }}
+                    onClick={() => handleInvoiceRowClick(inv)}
+                    icon={{
+                      path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+                      fillColor: "#059669",
+                      fillOpacity: 1,
+                      strokeWeight: 2,
+                      strokeColor: "#ffffff",
+                      scale: 1.5,
+                      anchor: new window.google.maps.Point(12, 24),
+                    }}
+                    zIndex={999}
+                  >
+                     {activeMarkerId === `inv-${inv.id}` && (
+                        <OverlayViewF position={{ lat: inv.displayLat, lng: inv.displayLng }} mapPaneName="overlayMouseTarget" getPixelPositionOffset={(w, h) => ({ x: -(w / 2), y: -(h + 40) })}>
+                          <div className="relative flex w-64 flex-col rounded-xl bg-white shadow-xl ring-1 ring-black/5 p-4">
+                            <button onClick={(e) => { e.stopPropagation(); setActiveMarkerId(null); }} className="absolute right-2 top-2 h-6 w-6 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-500 hover:text-zinc-900">
+                              <span className="sr-only">Fechar</span>
+                              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                            <span className="mb-2 inline-flex items-center rounded-full bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-600/20 w-max">Nota {inv.number}</span>
+                            <h3 className="text-sm font-bold text-zinc-900 line-clamp-2">{inv.recipient?.name?.toUpperCase() || "—"}</h3>
+                            <div className="mt-2 text-xs text-zinc-600 border-t border-zinc-100 pt-2">{inv.recipient?.address?.city} / {inv.recipient?.address?.state}</div>
+                          </div>
+                        </OverlayViewF>
+                      )}
+                  </MarkerF>
+                ))}
+              </>
+            )}
+
+            {/* TRAVELS MAP RENDER */}
+            {viewMode === "viagens" && (
+              <>
+                {travelPolylines.map(poly => (
+                  <PolylineF
+                    key={`tvl-poly-${poly.travelId}`}
+                    path={poly.path}
+                    options={{
+                      strokeColor: poly.isSelected ? "#059669" : "#3b82f6",
+                      strokeOpacity: poly.isSelected ? 1.0 : 0.4,
+                      strokeWeight: poly.isSelected ? 4 : 2,
+                      zIndex: poly.isSelected ? 2 : 1
+                    }}
+                  />
+                ))}
+                {travelMarkers.map((m, idx) => (
+                  <MarkerF
+                    key={`tvl-mk-${m.travelId}-${idx}`}
+                    position={{ lat: m.lat, lng: m.lng }}
+                    onClick={() => { setActiveMarkerId(`tvl-${m.travelId}-${idx}`); }}
+                    icon={{
+                      path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+                      fillColor: m.isSelected ? "#059669" : "#3b82f6",
+                      fillOpacity: 1,
+                      strokeWeight: m.isSelected ? 2 : 1,
+                      strokeColor: "#ffffff",
+                      scale: m.isSelected ? 1.3 : 1.0,
+                      anchor: new window.google.maps.Point(12, 24),
+                    }}
+                    zIndex={m.isSelected ? 999 : 10}
+                  >
+                    {activeMarkerId === `tvl-${m.travelId}-${idx}` && (
+                      <OverlayViewF position={{ lat: m.lat, lng: m.lng }} mapPaneName="overlayMouseTarget" getPixelPositionOffset={(w, h) => ({ x: -(w / 2), y: -(h + 40) })}>
+                        <div className="relative flex w-64 flex-col rounded-xl bg-white shadow-xl ring-1 ring-black/5 p-4 z-50">
+                          <button onClick={(e) => { e.stopPropagation(); setActiveMarkerId(null); }} className="absolute right-2 top-2 h-6 w-6 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-500 hover:text-zinc-900">
+                            <span className="sr-only">Fechar</span>
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                          </button>
+                          <span className="mb-2 inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700 ring-1 ring-blue-600/20 w-max">Viagem #{m.travelId}</span>
+                          <h3 className="text-sm font-bold text-zinc-900 line-clamp-2">{m.point.name.toUpperCase()}</h3>
+                          <div className="mt-2 text-xs text-zinc-600 border-t border-zinc-100 pt-2">{m.point.address.city} / {m.point.address.state}</div>
+                        </div>
+                      </OverlayViewF>
+                    )}
+                  </MarkerF>
+                ))}
+              </>
+            )}
           </GoogleMap>
         )}
       </div>
 
-      {/* TABELA - BOTTOM HALF */}
+      {/* TABLE SECTION */}
       <div className="flex flex-1 min-h-0 flex-col overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-zinc-200">
         <div className="border-b border-zinc-200 bg-zinc-50 px-4 py-3 shrink-0 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="w-full sm:w-72 shrink-0">
             <h2 className="text-sm font-medium text-zinc-900 whitespace-nowrap">
-              Entregas Disponíveis ({invoices.length})
+              {viewMode === "entregas" ? `Entregas Disponíveis (${invoices.length})` : `Viagens Registradas (${travels.length})`}
             </h2>
           </div>
 
           <div className="flex-1 flex justify-start sm:justify-center">
-            {selectionStats && (
+            {viewMode === "entregas" && invoiceStats && (
               <div className="flex items-center gap-3 text-xs font-medium text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full ring-1 ring-inset ring-emerald-600/20">
-                <span>{selectionStats.count} nota{selectionStats.count > 1 ? "s" : ""}</span>
+                <span>{invoiceStats.count} nota{invoiceStats.count > 1 ? "s" : ""}</span>
                 <span className="w-1 h-1 rounded-full bg-emerald-300"></span>
-                <span>{selectionStats.weight.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kg</span>
+                <span>{invoiceStats.weight.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kg</span>
                 <span className="w-1 h-1 rounded-full bg-emerald-300"></span>
-                <span>{selectionStats.volume.toLocaleString('pt-BR', { minimumFractionDigits: 4, maximumFractionDigits: 4 })} m³</span>
+                <span>{invoiceStats.volume.toLocaleString('pt-BR', { minimumFractionDigits: 4, maximumFractionDigits: 4 })} m³</span>
+              </div>
+            )}
+            {viewMode === "viagens" && travelStats && (
+              <div className="flex items-center gap-3 text-xs font-medium text-blue-700 bg-blue-50 px-3 py-1.5 rounded-full ring-1 ring-inset ring-blue-600/20">
+                <span>{travelStats.count} viagem(s)</span>
+                <span className="w-1 h-1 rounded-full bg-blue-300"></span>
+                <span>{travelStats.invoicesCount} NFs</span>
+                <span className="w-1 h-1 rounded-full bg-blue-300"></span>
+                <span>{travelStats.weight.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kg</span>
               </div>
             )}
           </div>
 
           <div className="w-full sm:w-72 shrink-0 flex justify-end">
-            <label htmlFor="search-travel-invoices" className="sr-only">
-              Buscar notas
-            </label>
             <input
-              id="search-travel-invoices"
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar por número, destinatário..."
+              placeholder="Buscar..."
               className="w-full rounded-md bg-white border border-zinc-300 px-3 py-1.5 text-sm text-zinc-900 placeholder:text-zinc-500 shadow-sm focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 focus:outline-none"
             />
           </div>
         </div>
 
-        <div className="flex-1 overflow-auto">
-          <table className="min-w-max divide-y divide-zinc-200">
-            <thead className="bg-zinc-50 sticky top-0 z-10 shadow-[0_1px_0_0_#e4e4e7]">
-              <tr>
-                <th className="px-4 py-3 text-left w-10 bg-zinc-50">
-                  <input
-                    type="checkbox"
-                    checked={invoices.length > 0 && selectedIds.length === invoices.length}
-                    onChange={toggleSelectAll}
-                    disabled={invoices.length === 0}
-                    className="h-4 w-4 rounded border-zinc-300 text-zinc-900 focus:ring-zinc-900 cursor-pointer"
-                  />
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">
-                  Número
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">
-                  Destinatário
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">
-                  Emissão
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">
-                  Prev. Entrega
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">
-                  Endereço
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">
-                  Nº
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">
-                  Bairro
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">
-                  CEP
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">
-                  Cidade/UF
-                </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">
-                  Valor
-                </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">
-                  Peso
-                </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">
-                  Volume
-                </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">
-                  Status
-                </th>
-              </tr>
-            </thead>
-
-            <tbody className="divide-y divide-zinc-200">
-              {loading ? (
+        <div className="flex-1 overflow-auto bg-white">
+          <table className="w-full divide-y divide-zinc-200">
+            <thead className="bg-zinc-50 sticky top-0 z-20 shadow-[0_1px_0_0_#e4e4e7]">
+              {viewMode === "entregas" ? (
                 <tr>
-                  <td colSpan={14} className="px-4 py-10 text-center text-sm text-zinc-600">
-                    Carregando notas...
-                  </td>
-                </tr>
-              ) : error ? (
-                <tr>
-                  <td colSpan={14} className="px-4 py-10 text-center text-sm text-red-600">
-                    {error}
-                  </td>
-                </tr>
-              ) : invoices.length === 0 ? (
-                <tr>
-                  <td colSpan={14} className="px-4 py-10 text-center text-sm text-zinc-600">
-                    Nenhuma nota fiscal encontrada.
-                  </td>
+                  <th className="px-4 py-3 text-left w-10 bg-zinc-50">
+                    <input type="checkbox" checked={invoices.length > 0 && selectedInvoiceIds.length === invoices.length} onChange={toggleSelectAllInvoices} disabled={invoices.length === 0} className="h-4 w-4 rounded border-zinc-300 text-zinc-900 cursor-pointer" />
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Número</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Destinatário</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Emissão</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Endereço</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Cidade/UF</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Valor</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Peso</th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Status</th>
                 </tr>
               ) : (
+                <tr>
+
+                  <th className="px-4 py-3 text-left w-10 bg-zinc-50">
+                    <input type="checkbox" checked={travels.length > 0 && selectedTravelIds.length === travels.length} onChange={toggleSelectAllTravels} disabled={travels.length === 0} className="h-4 w-4 rounded border-zinc-300 text-zinc-900 cursor-pointer" />
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">ID</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Origem</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Início</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Fim</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Qtd NFs</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Qtd Pontos</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Distância</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Valor</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Peso</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-600 bg-zinc-50">Cubagem</th>
+                </tr>
+              )}
+            </thead>
+            <tbody className="divide-y divide-zinc-200">
+              {loading ? (
+                <tr><td colSpan={15} className="px-4 py-10 text-center text-sm text-zinc-500">Carregando...</td></tr>
+              ) : error ? (
+                <tr><td colSpan={15} className="px-4 py-10 text-center text-sm text-red-500">{error}</td></tr>
+              ) : viewMode === "entregas" ? (
+                invoices.length === 0 ? <tr><td colSpan={10} className="px-4 py-10 text-center text-sm text-zinc-500">Nenhuma nota fiscal.</td></tr> :
                 invoices.map((row) => (
-                  <tr
-                    key={row.id}
-                    onClick={() => handleRowClick(row)}
-                    className={`cursor-pointer transition-colors hover:bg-zinc-50 ${
-                      activeMarkerId === row.id ? "bg-zinc-100" : ""
-                    } ${selectedIds.includes(row.id) ? "bg-emerald-50/50" : ""}`}
-                  >
-                    <td className="px-4 py-3 text-sm w-10" onClick={(e) => e.stopPropagation()}>
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.includes(row.id)}
-                        onChange={() => toggleSelect(row.id)}
-                        className="h-4 w-4 rounded border-zinc-300 text-zinc-900 focus:ring-zinc-900 cursor-pointer"
-                      />
+                  <tr key={row.id} onClick={() => handleInvoiceRowClick(row)} className={`cursor-pointer hover:bg-zinc-50 ${selectedInvoiceIds.includes(row.id) ? "bg-emerald-50/50" : ""}`}>
+                    <td className="px-4 py-3 text-sm" onClick={e => e.stopPropagation()}>
+                      <input type="checkbox" checked={selectedInvoiceIds.includes(row.id)} onChange={() => toggleSelectInvoice(row.id)} className="h-4 w-4 rounded border-zinc-300" />
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-zinc-900">
-                      {row.number || "—"}
+                    <td className="px-4 py-3 text-sm font-medium text-zinc-900">{row.number || "—"}</td>
+                    <td className="px-4 py-3 text-sm text-zinc-700">{row.recipient?.name || "—"}</td>
+                    <td className="px-4 py-3 text-sm text-zinc-700">{formatDate(row.issuedAt)}</td>
+                    <td className="px-4 py-3 text-sm text-zinc-700">{row.recipient?.address?.address || "—"}</td>
+                    <td className="px-4 py-3 text-sm text-zinc-700">{row.recipient?.address?.city}/{row.recipient?.address?.state}</td>
+                    <td className="px-4 py-3 text-right text-sm text-emerald-700">{row.value?.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
+                    <td className="px-4 py-3 text-right text-sm text-zinc-700">{row.weight?.toLocaleString("pt-BR")} kg</td>
+                    <td className="px-4 py-3 text-center text-sm"><span className="inline-flex rounded-full bg-zinc-100 px-2 text-xs">{row.statusDescription}</span></td>
+                  </tr>
+                ))
+              ) : (
+                travels.length === 0 ? <tr><td colSpan={12} className="px-4 py-10 text-center text-sm text-zinc-500">Nenhuma viagem encontrada.</td></tr> :
+                travels.map((row) => (
+                  <tr key={row.id} onClick={() => handleTravelRowClick(row)} className={`cursor-pointer hover:bg-zinc-50 ${selectedTravelIds.includes(row.id) ? "bg-blue-50/50" : ""}`}>
+                    <td className="px-4 py-3 text-sm" onClick={e => e.stopPropagation()}>
+                      <input type="checkbox" checked={selectedTravelIds.includes(row.id)} onChange={() => toggleSelectTravel(row.id)} className="h-4 w-4 rounded border-zinc-300 cursor-pointer" />
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-zinc-700">
-                      {row.recipient?.name || "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-sm text-zinc-700">
-                      {formatDate(row.issuedAt)}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-sm text-zinc-700">
-                      {formatDate(row.scheduledDelivery)}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-sm text-zinc-700">
-                      {row.recipient?.address?.address || "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-sm text-zinc-700">
-                      {row.recipient?.address?.number || "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-sm text-zinc-700">
-                      {row.recipient?.address?.neighborhood || "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-sm text-zinc-700">
-                      {formatCep(row.recipient?.address?.zipCode) || "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-sm text-zinc-700">
-                      {row.recipient?.address?.city && row.recipient?.address?.state
-                        ? `${row.recipient.address.city}/${row.recipient.address.state}`
-                        : "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-right text-sm text-emerald-700 font-medium">
-                      {row.value != null ? (
-                        row.value.toLocaleString("pt-BR", {
-                          style: "currency",
-                          currency: "BRL",
-                        })
-                      ) : (
-                        "—"
-                      )}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-right text-sm text-zinc-700">
-                      {row.weight != null ? (
-                        <span>
-                          {row.weight.toLocaleString("pt-BR", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                          <span className="ml-1 text-xs text-zinc-500">kg</span>
-                        </span>
-                      ) : (
-                        "—"
-                      )}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-right text-sm text-zinc-700">
-                      {row.volume != null ? (
-                        <span>
-                          {(row.volume / 1000000).toLocaleString("pt-BR", {
-                            minimumFractionDigits: 4,
-                            maximumFractionDigits: 4,
-                          })}
-                          <span className="ml-1 text-xs text-zinc-500">m³</span>
-                        </span>
-                      ) : (
-                        "—"
-                      )}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-center text-sm">
-                      <span
-                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                          row.statusDescription === "Autorizada"
-                            ? "bg-emerald-100 text-emerald-700"
-                            : row.statusDescription === "Pendente"
-                              ? "bg-amber-100 text-amber-700"
-                              : "bg-zinc-100 text-zinc-700"
-                        }`}
-                      >
-                        {row.statusDescription || "—"}
-                      </span>
-                    </td>
+                    <td className="px-4 py-3 text-sm font-medium text-zinc-900">#{row.id}</td>
+                    <td className="px-4 py-3 text-sm text-zinc-700">{row.origin?.address?.city ? `${row.origin.address.city}/${row.origin.address.state}` : row.origin?.name || "—"}</td>
+                    <td className="px-4 py-3 text-sm text-zinc-700">{formatDate(row.startDate)}</td>
+                    <td className="px-4 py-3 text-sm text-zinc-700">{formatDate(row.endDate)}</td>
+                    <td className="px-4 py-3 text-right text-sm text-zinc-700">{row.invoiceQuantity}</td>
+                    <td className="px-4 py-3 text-right text-sm text-zinc-700">{row.locationQuantity}</td>
+                    <td className="px-4 py-3 text-right text-sm text-zinc-700">{(Number(row.totalDistance) / 1000).toLocaleString("pt-BR")} km</td>
+                    <td className="px-4 py-3 text-right text-sm text-blue-700 font-medium">{Number(row.totalValue).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
+                    <td className="px-4 py-3 text-right text-sm text-zinc-700">{Number(row.totalWeight).toLocaleString("pt-BR")} kg</td>
+                    <td className="px-4 py-3 text-right text-sm text-zinc-700">{Number(row.totalVolume).toLocaleString("pt-BR", { minimumFractionDigits: 4, maximumFractionDigits: 4 })} m³</td>
                   </tr>
                 ))
               )}
