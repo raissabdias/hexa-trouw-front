@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2, Eye, X, MapPin, Package, Clock, Route, Weight, Box } from "lucide-react";
 import {
   GoogleMap,
   MarkerF,
@@ -39,6 +39,7 @@ type TravelPoint = {
   locationId: number;
   sequence: number;
   name: string;
+  stopTypeId?: number;
   address: {
     latitude: string;
     longitude: string;
@@ -49,6 +50,50 @@ type TravelPoint = {
     state: string;
     zipCode: string;
   };
+};
+
+type TravelDetailInvoice = {
+  id: number;
+  number: string;
+  series: string;
+  value: number | null;
+  weight: number | null;
+  volume: number | null;
+  statusDescription: string;
+};
+
+type TravelDetailPoint = {
+  locationId: number;
+  sequence: number;
+  stopTypeId: number;
+  name: string;
+  address: {
+    latitude: string;
+    longitude: string;
+    street: string | null;
+    number: string | null;
+    neighborhood: string | null;
+    city: string;
+    state: string;
+    zipCode: string;
+  };
+  estimatedArrivalTime: string;
+  distanceFromPreviousPoint: number;
+  durationFromStartSeconds: number;
+  invoices: TravelDetailInvoice[];
+};
+
+type TravelDetail = {
+  id: number;
+  totalWeight: string;
+  totalVolume: string;
+  startDate: string;
+  endDate: string;
+  totalDistance: string;
+  totalValue: string;
+  color: string;
+  origin: TravelDetailPoint;
+  travelPoints: TravelDetailPoint[];
 };
 
 type TravelApiItem = {
@@ -128,6 +173,9 @@ export default function TravelIndexPage() {
   const [isRouting, setIsRouting] = useState(false);
 
   const [activeMarkerId, setActiveMarkerId] = useState<string | null>(null);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [travelDetail, setTravelDetail] = useState<TravelDetail | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
 
@@ -251,6 +299,26 @@ export default function TravelIndexPage() {
       }
     }
   }, []);
+
+  const handleViewTravelDetail = async (id: number) => {
+    setDetailLoading(true);
+    setDetailModalOpen(true);
+    setTravelDetail(null);
+    try {
+      const res = await api.get<ApiResponse<TravelDetail>, ApiResponse<TravelDetail>>(`/travels/${id}`);
+      if (res.success) {
+        setTravelDetail(res.data);
+      } else {
+        alert(res.message || "Erro ao carregar detalhes.");
+        setDetailModalOpen(false);
+      }
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Erro ao carregar detalhes.");
+      setDetailModalOpen(false);
+    } finally {
+      setDetailLoading(false);
+    }
+  };
 
   const toggleSelectAllTravels = () => {
     if (selectedTravelIds.length === travels.length) setSelectedTravelIds([]);
@@ -740,13 +808,22 @@ export default function TravelIndexPage() {
                     <td className="px-4 py-3 text-right text-sm text-zinc-700">{Number(row.totalWeight).toLocaleString("pt-BR")} kg</td>
                     <td className="px-4 py-3 text-right text-sm text-zinc-700">{Number(row.totalVolume).toLocaleString("pt-BR", { minimumFractionDigits: 4, maximumFractionDigits: 4 })} m³</td>
                     <td className="px-4 py-3 text-center text-sm" onClick={e => e.stopPropagation()}>
-                      <button
-                        onClick={() => handleDeleteTravel(row.id)}
-                        className="rounded-md p-1.5 text-zinc-400 hover:bg-red-50 hover:text-red-600 transition-all"
-                        title="Excluir Viagem"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      <div className="flex items-center justify-center gap-1">
+                        <button
+                          onClick={() => void handleViewTravelDetail(row.id)}
+                          className="rounded-md p-1.5 text-zinc-400 hover:bg-[#2E3191]/10 hover:text-[#2E3191] transition-all"
+                          title="Ver Detalhes"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteTravel(row.id)}
+                          className="rounded-md p-1.5 text-zinc-400 hover:bg-red-50 hover:text-red-600 transition-all"
+                          title="Excluir Viagem"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -800,6 +877,176 @@ export default function TravelIndexPage() {
                 ) : "Confirmar Viagem"}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* TRAVEL DETAIL MODAL */}
+      {detailModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setDetailModalOpen(false)}>
+          <div
+            className="w-full max-w-3xl max-h-[85vh] bg-white rounded-2xl shadow-2xl ring-1 ring-black/5 flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200 bg-zinc-50 shrink-0">
+              <div className="flex items-center gap-3">
+                {travelDetail && (
+                  <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: travelDetail.color || '#2E3191' }}></span>
+                )}
+                <h3 className="text-lg font-bold text-zinc-900">
+                  {travelDetail ? `Viagem #${travelDetail.id}` : 'Carregando...'}
+                </h3>
+              </div>
+              <button
+                onClick={() => setDetailModalOpen(false)}
+                className="rounded-full p-1.5 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-900 transition-all"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {detailLoading ? (
+              <div className="flex-1 flex items-center justify-center py-16">
+                <div className="flex flex-col items-center gap-3">
+                  <svg className="animate-spin h-8 w-8 text-[#2E3191]" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span className="text-sm text-zinc-500">Carregando detalhes...</span>
+                </div>
+              </div>
+            ) : travelDetail ? (
+              <>
+                {/* Summary Cards */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 px-6 py-4 border-b border-zinc-100 shrink-0">
+                  <div className="flex items-center gap-2.5 rounded-xl bg-zinc-50 px-3 py-2.5 ring-1 ring-zinc-200">
+                    <Route className="h-4 w-4 text-[#2E3191] shrink-0" />
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold">Distância</p>
+                      <p className="text-sm font-bold text-zinc-900">{(Number(travelDetail.totalDistance) / 1000).toLocaleString('pt-BR', { maximumFractionDigits: 0 })} km</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2.5 rounded-xl bg-zinc-50 px-3 py-2.5 ring-1 ring-zinc-200">
+                    <Weight className="h-4 w-4 text-[#2E3191] shrink-0" />
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold">Peso</p>
+                      <p className="text-sm font-bold text-zinc-900">{Number(travelDetail.totalWeight).toLocaleString('pt-BR')} kg</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2.5 rounded-xl bg-zinc-50 px-3 py-2.5 ring-1 ring-zinc-200">
+                    <Box className="h-4 w-4 text-[#2E3191] shrink-0" />
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold">Cubagem</p>
+                      <p className="text-sm font-bold text-zinc-900">{Number(travelDetail.totalVolume).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m³</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2.5 rounded-xl bg-zinc-50 px-3 py-2.5 ring-1 ring-zinc-200">
+                    <Package className="h-4 w-4 text-[#2E3191] shrink-0" />
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold">Valor Total</p>
+                      <p className="text-sm font-bold text-[#2E3191]">{Number(travelDetail.totalValue).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Date range */}
+                <div className="flex items-center gap-4 px-6 py-3 text-xs text-zinc-500 border-b border-zinc-100 shrink-0">
+                  <div className="flex items-center gap-1.5">
+                    <Clock className="h-3.5 w-3.5" />
+                    <span className="font-medium">Início:</span>
+                    <span className="text-zinc-700">{formatDate(travelDetail.startDate)}</span>
+                  </div>
+                  <span className="text-zinc-300">→</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-medium">Fim:</span>
+                    <span className="text-zinc-700">{formatDate(travelDetail.endDate)}</span>
+                  </div>
+                </div>
+
+                {/* Travel Points */}
+                <div className="flex-1 overflow-auto px-6 py-4">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-3">Pontos da Viagem ({travelDetail.travelPoints.length})</h4>
+                  <div className="space-y-3">
+                    {travelDetail.travelPoints.map((point, idx) => {
+                      const isOrigin = point.stopTypeId === 4;
+                      return (
+                        <div key={`${point.locationId}-${point.sequence}`} className={`rounded-xl ring-1 transition-all ${
+                          isOrigin ? 'ring-[#2E3191]/30 bg-[#2E3191]/5' : 'ring-zinc-200 bg-white hover:ring-zinc-300'
+                        }`}>
+                          {/* Point header */}
+                          <div className="flex items-start gap-3 px-4 py-3">
+                            <div className={`mt-0.5 flex items-center justify-center h-7 w-7 rounded-full text-xs font-bold shrink-0 ${
+                              isOrigin ? 'bg-[#2E3191] text-white' : 'bg-zinc-200 text-zinc-700'
+                            }`}>
+                              {isOrigin ? <MapPin className="h-3.5 w-3.5" /> : idx}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <h5 className="text-sm font-semibold text-zinc-900 truncate">{point.name}</h5>
+                                {isOrigin && (
+                                  <span className="shrink-0 inline-flex rounded-full bg-[#2E3191]/10 px-2 py-0.5 text-[10px] font-bold text-[#2E3191] uppercase tracking-wider">Origem</span>
+                                )}
+                              </div>
+                              <p className="text-xs text-zinc-500 mt-0.5">
+                                {[point.address.street, point.address.number].filter(Boolean).join(', ') || point.address.neighborhood || '—'}
+                                {point.address.city && ` · ${point.address.city}/${point.address.state}`}
+                              </p>
+                              <div className="flex items-center gap-3 mt-1.5 text-[11px] text-zinc-400">
+                                <span className="flex items-center gap-1">
+                                  <Clock className="h-3 w-3" />
+                                  {formatDate(point.estimatedArrivalTime)}
+                                </span>
+                                {point.distanceFromPreviousPoint > 0 && (
+                                  <span className="flex items-center gap-1">
+                                    <Route className="h-3 w-3" />
+                                    {(point.distanceFromPreviousPoint / 1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} km do ponto anterior
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Invoices */}
+                          {point.invoices.length > 0 && (
+                            <div className="border-t border-zinc-100 px-4 py-2">
+                              <table className="w-full text-xs">
+                                <thead>
+                                  <tr className="text-zinc-400">
+                                    <th className="text-left py-1 font-semibold">NF</th>
+                                    <th className="text-left py-1 font-semibold">Série</th>
+                                    <th className="text-right py-1 font-semibold">Peso</th>
+                                    <th className="text-right py-1 font-semibold">Volume</th>
+                                    <th className="text-right py-1 font-semibold">Valor</th>
+                                    <th className="text-center py-1 font-semibold">Status</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-zinc-50">
+                                  {point.invoices.map((inv) => (
+                                    <tr key={inv.id} className="text-zinc-600">
+                                      <td className="py-1.5 font-medium text-zinc-800">{inv.number}</td>
+                                      <td className="py-1.5">{inv.series}</td>
+                                      <td className="py-1.5 text-right">{inv.weight != null ? `${inv.weight} kg` : '—'}</td>
+                                      <td className="py-1.5 text-right">{inv.volume != null ? `${(inv.volume / 1000000).toLocaleString('pt-BR', { minimumFractionDigits: 4 })} m³` : '—'}</td>
+                                      <td className="py-1.5 text-right font-medium text-[#2E3191]">{inv.value != null ? inv.value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '—'}</td>
+                                      <td className="py-1.5 text-center">
+                                        <span className="inline-flex rounded-full bg-emerald-50 text-emerald-700 px-2 py-0.5 text-[10px] font-semibold ring-1 ring-emerald-200">
+                                          {inv.statusDescription}
+                                        </span>
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </>
+            ) : null}
           </div>
         </div>
       )}
