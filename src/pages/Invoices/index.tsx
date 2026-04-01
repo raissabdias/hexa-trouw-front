@@ -101,7 +101,7 @@ const INITIAL_FORM: InvoiceFormData = {
 
 export default function InvoicesIndexPage() {
   const [mode, setMode] = useState<"list" | "create">("list");
-  
+
   // Lista States
   const [rows, setRows] = useState<InvoiceApiItem[]>([]);
   const [total, setTotal] = useState(0);
@@ -277,7 +277,7 @@ export default function InvoicesIndexPage() {
 
         <div className="mt-4 rounded-lg bg-white p-4 shadow-sm ring-1 ring-zinc-200 sm:p-6">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            
+
             <div className="sm:col-span-2 lg:col-span-4">
               <label className="mb-1 block text-sm font-medium text-zinc-700">
                 Destinatário *
@@ -294,7 +294,7 @@ export default function InvoicesIndexPage() {
                 {locations.map((loc) => {
                   const personId = loc.personId ?? loc.person?.id;
                   if (!personId) return null;
-                  
+
                   return (
                     <option key={String(loc.id)} value={String(personId)}>
                       {getLocationName(loc)}
@@ -409,7 +409,7 @@ export default function InvoicesIndexPage() {
             <button
               type="button"
               onClick={() => void handleCreateInvoice()}
-              className="rounded-md bg-[#2E3191] px-4 py-2 text-sm font-medium text-white hover:bg-[#1E2266] disabled:cursor-not-allowed disabled:opacity-70 transition-colors"
+              className="rounded-md bg-[#2E3191] px-4 py-2 text-sm font-medium text-white hover:bg-[#2E3191] disabled:cursor-not-allowed disabled:opacity-70 transition-colors"
               disabled={saving}
             >
               {saving ? "Salvando..." : "Salvar Nota"}
@@ -448,7 +448,7 @@ export default function InvoicesIndexPage() {
 
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-md bg-[#2E3191] px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#1E2266] transition-colors"
+            className="inline-flex items-center gap-2 rounded-md bg-[#2E3191] px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#2E3191] transition-colors"
             onClick={() => {
               setMode("create");
               setFormError(null);
@@ -558,13 +558,12 @@ export default function InvoicesIndexPage() {
                     </td>
                     <td className="whitespace-nowrap px-4 py-3 text-center text-sm">
                       <span
-                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                          row.statusDescription === "Autorizada"
+                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${row.statusDescription === "Autorizada"
                             ? "bg-emerald-100 text-emerald-700"
                             : row.statusDescription === "Pendente"
                               ? "bg-amber-100 text-amber-700"
                               : "bg-zinc-100 text-zinc-700"
-                        }`}
+                          }`}
                       >
                         {row.statusDescription || "—"}
                       </span>

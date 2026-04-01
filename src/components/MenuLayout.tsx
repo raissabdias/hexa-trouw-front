@@ -1,6 +1,7 @@
 import { type ReactNode } from "react";
-import { Truck, FileText, MapPin } from "lucide-react";
+import { Truck, FileText, MapPin, LogOut } from "lucide-react";
 import { NavLink, Link, Outlet, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export type MenuKey = "invoices" | "locations" | "travel";
 
@@ -18,6 +19,7 @@ const ITEMS: MenuItem[] = [
 ];
 
 export function MenuLayout() {
+  const { logout } = useAuth();
   const location = useLocation();
   const isTravelPage = location.pathname === "/travel";
 
@@ -61,6 +63,17 @@ export function MenuLayout() {
                   </NavLink>
                 );
               })}
+              
+              <div className="mx-2 h-6 w-px bg-zinc-200" aria-hidden="true" />
+
+              <button
+                onClick={logout}
+                className="group inline-flex shrink-0 items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold transition-all duration-200 text-zinc-500 hover:bg-red-50 hover:text-red-600"
+                title="Sair do sistema"
+              >
+                <LogOut className="h-4 w-4 text-zinc-400 transition-colors group-hover:text-red-500" />
+                <span>Sair</span>
+              </button>
             </nav>
           </div>
         </div>

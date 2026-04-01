@@ -4,17 +4,27 @@ import InvoicesIndexPage from "./pages/Invoices";
 import LocationsIndexPage from "./pages/Locations";
 import TravelIndexPage from "./pages/Travel";
 
+import { AuthProvider } from "./context/AuthContext";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import LoginPage from "./pages/Login";
+
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route element={<MenuLayout />}>
-          <Route path="/" element={<Navigate to="/travel" replace />} />
-          <Route path="/travel" element={<TravelIndexPage />} />
-          <Route path="/invoices" element={<InvoicesIndexPage />} />
-          <Route path="/locations" element={<LocationsIndexPage />} />
-        </Route>
-      </Routes>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          
+          <Route element={<ProtectedRoute />}>
+            <Route element={<MenuLayout />}>
+              <Route path="/" element={<Navigate to="/travel" replace />} />
+              <Route path="/travel" element={<TravelIndexPage />} />
+              <Route path="/invoices" element={<InvoicesIndexPage />} />
+              <Route path="/locations" element={<LocationsIndexPage />} />
+            </Route>
+          </Route>
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   )
 }

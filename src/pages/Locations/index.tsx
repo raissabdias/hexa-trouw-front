@@ -273,7 +273,7 @@ export default function LocationsIndexPage() {
     const components = place.address_components ?? [];
     const getComponent = (type: string, short = false) =>
       components.find((c) => c.types.includes(type))?.[
-        short ? "short_name" : "long_name"
+      short ? "short_name" : "long_name"
       ] ?? "";
 
     const street = getComponent("route");
@@ -421,140 +421,140 @@ export default function LocationsIndexPage() {
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
             <div className="lg:col-span-3">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="sm:col-span-2">
-              <label className="mb-1 block text-sm font-medium text-zinc-700">
-                Nome *
-              </label>
-              <input
-                value={form.name}
-                onChange={(e) => updateForm("name", e.target.value)}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
-                placeholder="Ex.: TRANSPORTADORA TREVO 3 LTDA"
-              />
-            </div>
+                <div className="sm:col-span-2">
+                  <label className="mb-1 block text-sm font-medium text-zinc-700">
+                    Nome *
+                  </label>
+                  <input
+                    value={form.name}
+                    onChange={(e) => updateForm("name", e.target.value)}
+                    className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
+                    placeholder="Ex.: TRANSPORTADORA TREVO 3 LTDA"
+                  />
+                </div>
 
-            <div>
-              <label className="mb-1 block text-sm font-medium text-zinc-700">
-                CPF/CNPJ *
-              </label>
-              <input
-                value={form.document}
-                onChange={(e) =>
-                  updateForm("document", formatDocumentInput(e.target.value))
-                }
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
-                placeholder="000.000.000-00 ou 00.000.000/0000-00"
-              />
-            </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-zinc-700">
+                    CPF/CNPJ *
+                  </label>
+                  <input
+                    value={form.document}
+                    onChange={(e) =>
+                      updateForm("document", formatDocumentInput(e.target.value))
+                    }
+                    className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
+                    placeholder="000.000.000-00 ou 00.000.000/0000-00"
+                  />
+                </div>
 
-            <div>
-              <label className="mb-1 block text-sm font-medium text-zinc-700">
-                Raio (m)
-              </label>
-              <input
-                value={form.radius}
-                onChange={(e) => updateForm("radius", e.target.value)}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
-                placeholder="50"
-              />
-            </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-zinc-700">
+                    Raio (m)
+                  </label>
+                  <input
+                    value={form.radius}
+                    onChange={(e) => updateForm("radius", e.target.value)}
+                    className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
+                    placeholder="50"
+                  />
+                </div>
 
-            <div>
-              <label className="mb-1 block text-sm font-medium text-zinc-700">
-                Latitude *
-              </label>
-              <input
-                value={form.latitude}
-                onChange={(e) => updateForm("latitude", e.target.value)}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
-                placeholder="-23.5505"
-              />
-            </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-zinc-700">
+                    Latitude *
+                  </label>
+                  <input
+                    value={form.latitude}
+                    onChange={(e) => updateForm("latitude", e.target.value)}
+                    className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
+                    placeholder="-23.5505"
+                  />
+                </div>
 
-            <div>
-              <label className="mb-1 block text-sm font-medium text-zinc-700">
-                Longitude *
-              </label>
-              <input
-                value={form.longitude}
-                onChange={(e) => updateForm("longitude", e.target.value)}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
-                placeholder="-46.6333"
-              />
-            </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-zinc-700">
+                    Longitude *
+                  </label>
+                  <input
+                    value={form.longitude}
+                    onChange={(e) => updateForm("longitude", e.target.value)}
+                    className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
+                    placeholder="-46.6333"
+                  />
+                </div>
 
-            <div className="sm:col-span-2">
-              <label className="mb-1 block text-sm font-medium text-zinc-700">
-                Logradouro *
-              </label>
-              <input
-                value={form.street}
-                onChange={(e) => updateForm("street", e.target.value)}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
-                placeholder="Avenida das Nacoes Unidas"
-              />
-            </div>
+                <div className="sm:col-span-2">
+                  <label className="mb-1 block text-sm font-medium text-zinc-700">
+                    Logradouro *
+                  </label>
+                  <input
+                    value={form.street}
+                    onChange={(e) => updateForm("street", e.target.value)}
+                    className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
+                    placeholder="Avenida das Nacoes Unidas"
+                  />
+                </div>
 
-            <div>
-              <label className="mb-1 block text-sm font-medium text-zinc-700">
-                Número *
-              </label>
-              <input
-                value={form.number}
-                onChange={(e) => updateForm("number", e.target.value)}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
-                placeholder="12901"
-              />
-            </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-zinc-700">
+                    Número *
+                  </label>
+                  <input
+                    value={form.number}
+                    onChange={(e) => updateForm("number", e.target.value)}
+                    className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
+                    placeholder="12901"
+                  />
+                </div>
 
-            <div>
-              <label className="mb-1 block text-sm font-medium text-zinc-700">
-                Bairro *
-              </label>
-              <input
-                value={form.neighborhood}
-                onChange={(e) => updateForm("neighborhood", e.target.value)}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
-                placeholder="Brooklin Novo"
-              />
-            </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-zinc-700">
+                    Bairro *
+                  </label>
+                  <input
+                    value={form.neighborhood}
+                    onChange={(e) => updateForm("neighborhood", e.target.value)}
+                    className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
+                    placeholder="Brooklin Novo"
+                  />
+                </div>
 
-            <div>
-              <label className="mb-1 block text-sm font-medium text-zinc-700">
-                Cidade *
-              </label>
-              <input
-                value={form.city}
-                onChange={(e) => updateForm("city", e.target.value)}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
-                placeholder="São Paulo"
-              />
-            </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-zinc-700">
+                    Cidade *
+                  </label>
+                  <input
+                    value={form.city}
+                    onChange={(e) => updateForm("city", e.target.value)}
+                    className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
+                    placeholder="São Paulo"
+                  />
+                </div>
 
-            <div>
-              <label className="mb-1 block text-sm font-medium text-zinc-700">
-                Estado *
-              </label>
-              <input
-                value={form.state}
-                onChange={(e) => updateForm("state", e.target.value.toUpperCase())}
-                maxLength={2}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm uppercase outline-none focus:border-zinc-900"
-                placeholder="SP"
-              />
-            </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-zinc-700">
+                    Estado *
+                  </label>
+                  <input
+                    value={form.state}
+                    onChange={(e) => updateForm("state", e.target.value.toUpperCase())}
+                    maxLength={2}
+                    className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm uppercase outline-none focus:border-zinc-900"
+                    placeholder="SP"
+                  />
+                </div>
 
-            <div>
-              <label className="mb-1 block text-sm font-medium text-zinc-700">
-                CEP *
-              </label>
-              <input
-                value={form.zipCode}
-                onChange={(e) => updateForm("zipCode", formatZipInput(e.target.value))}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
-                placeholder="04578-000"
-              />
-            </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-zinc-700">
+                    CEP *
+                  </label>
+                  <input
+                    value={form.zipCode}
+                    onChange={(e) => updateForm("zipCode", formatZipInput(e.target.value))}
+                    className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-[#2E3191] focus:ring-2 focus:ring-[#2E3191]/20 transition-all"
+                    placeholder="04578-000"
+                  />
+                </div>
               </div>
             </div>
 
@@ -635,7 +635,7 @@ export default function LocationsIndexPage() {
             <button
               type="button"
               onClick={() => void handleCreateLocation()}
-              className="rounded-md bg-[#2E3191] px-4 py-2 text-sm font-medium text-white hover:bg-[#1E2266] disabled:cursor-not-allowed disabled:opacity-70 transition-colors"
+              className="rounded-md bg-[#2E3191] px-4 py-2 text-sm font-medium text-white hover:bg-[#2E3191] disabled:cursor-not-allowed disabled:opacity-70 transition-colors"
               disabled={saving}
             >
               {saving ? "Salvando..." : "Salvar Local"}
@@ -674,7 +674,7 @@ export default function LocationsIndexPage() {
 
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-md bg-[#2E3191] px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#1E2266] transition-colors"
+            className="inline-flex items-center gap-2 rounded-md bg-[#2E3191] px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#2E3191] transition-colors"
             onClick={() => {
               setMode("create");
               setFormError(null);
@@ -689,111 +689,111 @@ export default function LocationsIndexPage() {
       </div>
 
       <div className="mt-4 overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-zinc-200">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-zinc-200">
-              <thead className="bg-zinc-100/80 border-b border-zinc-300">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-zinc-700">
-                    Nome
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-zinc-700">
-                    CPF/CNPJ
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-zinc-700">
-                    Descrição do Endereço
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-zinc-700">
-                    Cidade/Estado
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-zinc-700">
-                    CEP
-                  </th>
-                </tr>
-              </thead>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-zinc-200">
+            <thead className="bg-zinc-100/80 border-b border-zinc-300">
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-zinc-700">
+                  Nome
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-zinc-700">
+                  CPF/CNPJ
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-zinc-700">
+                  Descrição do Endereço
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-zinc-700">
+                  Cidade/Estado
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-zinc-700">
+                  CEP
+                </th>
+              </tr>
+            </thead>
 
-              <tbody className="divide-y divide-zinc-200">
-                {loading ? (
-                  <tr>
-                    <td
-                      colSpan={5}
-                      className="px-4 py-10 text-center text-sm text-zinc-600"
-                    >
-                      Carregando...
+            <tbody className="divide-y divide-zinc-200">
+              {loading ? (
+                <tr>
+                  <td
+                    colSpan={5}
+                    className="px-4 py-10 text-center text-sm text-zinc-600"
+                  >
+                    Carregando...
+                  </td>
+                </tr>
+              ) : error ? (
+                <tr>
+                  <td
+                    colSpan={5}
+                    className="px-4 py-10 text-center text-sm text-red-600"
+                  >
+                    {error}
+                  </td>
+                </tr>
+              ) : rows.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={5}
+                    className="px-4 py-10 text-center text-sm text-zinc-600"
+                  >
+                    Nenhum local encontrado.
+                  </td>
+                </tr>
+              ) : (
+                rows.map((row, idx) => (
+                  <tr key={String(row.id ?? idx)} className="hover:bg-zinc-50">
+                    <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-zinc-900">
+                      {getName(row)}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-3 text-sm text-zinc-700">
+                      {getDocument(row)}
+                    </td>
+                    <td className="min-w-[24rem] px-4 py-3 text-sm text-zinc-700">
+                      {getAddressDescription(row)}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-3 text-sm text-zinc-700">
+                      {getCityState(row)}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-3 text-sm text-zinc-700">
+                      {getZip(row)}
                     </td>
                   </tr>
-                ) : error ? (
-                  <tr>
-                    <td
-                      colSpan={5}
-                      className="px-4 py-10 text-center text-sm text-red-600"
-                    >
-                      {error}
-                    </td>
-                  </tr>
-                ) : rows.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={5}
-                      className="px-4 py-10 text-center text-sm text-zinc-600"
-                    >
-                      Nenhum local encontrado.
-                    </td>
-                  </tr>
-                ) : (
-                  rows.map((row, idx) => (
-                    <tr key={String(row.id ?? idx)} className="hover:bg-zinc-50">
-                      <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-zinc-900">
-                        {getName(row)}
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-3 text-sm text-zinc-700">
-                        {getDocument(row)}
-                      </td>
-                      <td className="min-w-[24rem] px-4 py-3 text-sm text-zinc-700">
-                        {getAddressDescription(row)}
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-3 text-sm text-zinc-700">
-                        {getCityState(row)}
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-3 text-sm text-zinc-700">
-                        {getZip(row)}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="flex flex-col gap-3 border-t border-zinc-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="text-sm text-zinc-600">
+            Total: <span className="font-medium text-zinc-900">{total}</span>
           </div>
 
-          <div className="flex flex-col gap-3 border-t border-zinc-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-sm text-zinc-600">
-              Total: <span className="font-medium text-zinc-900">{total}</span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              className="rounded-md bg-white px-3 py-2 text-sm font-medium text-zinc-900 ring-1 ring-zinc-200 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page <= 1 || loading}
+            >
+              Anterior
+            </button>
+            <div className="text-sm text-zinc-700">
+              Página <span className="font-medium text-zinc-900">{page}</span>{" "}
+              de{" "}
+              <span className="font-medium text-zinc-900">{totalPages}</span>
             </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                className="rounded-md bg-white px-3 py-2 text-sm font-medium text-zinc-900 ring-1 ring-zinc-200 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page <= 1 || loading}
-              >
-                Anterior
-              </button>
-              <div className="text-sm text-zinc-700">
-                Página <span className="font-medium text-zinc-900">{page}</span>{" "}
-                de{" "}
-                <span className="font-medium text-zinc-900">{totalPages}</span>
-              </div>
-              <button
-                type="button"
-                className="rounded-md bg-white px-3 py-2 text-sm font-medium text-zinc-900 ring-1 ring-zinc-200 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page >= totalPages || loading}
-              >
-                Próxima
-              </button>
-            </div>
+            <button
+              type="button"
+              className="rounded-md bg-white px-3 py-2 text-sm font-medium text-zinc-900 ring-1 ring-zinc-200 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages || loading}
+            >
+              Próxima
+            </button>
           </div>
         </div>
+      </div>
     </div>
   );
 }

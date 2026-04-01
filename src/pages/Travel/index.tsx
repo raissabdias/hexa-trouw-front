@@ -164,11 +164,11 @@ export default function TravelIndexPage() {
 
   const [invoices, setInvoices] = useState<InvoiceApiItem[]>([]);
   const [travels, setTravels] = useState<TravelApiItem[]>([]);
-  
+
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [selectedInvoiceIds, setSelectedInvoiceIds] = useState<number[]>([]);
   const [selectedTravelIds, setSelectedTravelIds] = useState<number[]>([]);
 
@@ -202,11 +202,11 @@ export default function TravelIndexPage() {
     setError(null);
     try {
       const data = await api.get<ApiResponse<InvoiceApiItem[]>, ApiResponse<InvoiceApiItem[]>>("/invoices", {
-        params: { 
-          page: 1, 
-          limit: 250, 
+        params: {
+          page: 1,
+          limit: 250,
           search: search.trim() || undefined,
-          availableOnly: true 
+          availableOnly: true
         },
       });
       if (isCancelled?.()) return;
@@ -253,7 +253,7 @@ export default function TravelIndexPage() {
 
   const handleDeleteTravel = async (id: number) => {
     if (!window.confirm("Tem certeza que deseja excluir esta viagem?")) return;
-    
+
     try {
       setLoading(true);
       const res = await api.delete<ApiResponse<void>, ApiResponse<void>>(`/travels/${id}`);
@@ -262,7 +262,7 @@ export default function TravelIndexPage() {
         setSelectedTravelIds(prev => prev.filter(tid => tid !== id));
         // Se era o marcador ativo, limpa
         if (activeMarkerId?.startsWith(`tvl-${id}`)) setActiveMarkerId(null);
-        
+
         // Recarrega as listas
         void fetchTravels();
         void fetchInvoices(); // Notas voltam a ficar disponíveis
@@ -396,7 +396,7 @@ export default function TravelIndexPage() {
         const key = `${lat},${lng}`;
         const count = coordinateCounts.get(key) || 0;
         if (count > 0) {
-          const radius = 0.00015 * Math.ceil(count / 6); 
+          const radius = 0.00015 * Math.ceil(count / 6);
           const angle = count * (Math.PI / 3);
           lat += radius * Math.cos(angle);
           lng += radius * Math.sin(angle);
@@ -443,15 +443,15 @@ export default function TravelIndexPage() {
     travels.forEach((t) => {
       const isSelected = selectedTravelIds.includes(t.id);
       const originLocationId = t.origin?.locationId;
-      
+
       (t.travelPoints || []).forEach(p => {
         let lat = Number(p.address.latitude);
         let lng = Number(p.address.longitude);
-        
+
         if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
           const key = `${lat.toFixed(6)},${lng.toFixed(6)}`;
           const count = coordinateCounts.get(key) || 0;
-          
+
           if (count > 0) {
             const radius = 0.00015 * Math.ceil(count / 6);
             const angle = count * (Math.PI / 3);
@@ -472,7 +472,7 @@ export default function TravelIndexPage() {
     if (!mapInstance || !window.google) return;
     const bounds = new window.google.maps.LatLngBounds();
     let hasPoints = false;
-    
+
     if (viewMode === "entregas" && displayInvoiceMarkers.length > 0) {
       displayInvoiceMarkers.forEach((inv) => {
         bounds.extend(new window.google.maps.LatLng(inv.displayLat, inv.displayLng));
@@ -508,7 +508,7 @@ export default function TravelIndexPage() {
   return (
     <div className="flex flex-1 flex-col gap-4 min-h-0 relative">
       <div className="flex-1 min-h-0 overflow-hidden relative rounded-lg bg-zinc-100 ring-1 ring-zinc-200">
-        
+
         {/* Toggle View Mode */}
         <div className="absolute top-4 left-4 z-10 bg-white p-1 rounded-full shadow-xl ring-1 ring-zinc-200 flex items-center gap-1">
           <button
@@ -575,19 +575,19 @@ export default function TravelIndexPage() {
                     }}
                     zIndex={1}
                   >
-                          {activeMarkerId === `inv-${inv.id}` && (
-                            <OverlayViewF position={{ lat: inv.displayLat, lng: inv.displayLng }} mapPaneName="overlayMouseTarget" getPixelPositionOffset={(w, h) => ({ x: -(w / 2), y: -(h + 40) })}>
-                              <div className="relative flex w-64 flex-col rounded-xl bg-white shadow-xl ring-1 ring-black/5 p-4">
-                                <button onClick={(e) => { e.stopPropagation(); setActiveMarkerId(null); }} className="absolute right-2 top-2 h-6 w-6 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-500 hover:text-zinc-900">
-                                  <span className="sr-only">Fechar</span>
-                                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                                </button>
-                            <span className="mb-2 inline-flex items-center rounded-full bg-[#2E3191]/10 px-2 py-1 text-xs font-semibold text-[#2E3191] ring-1 ring-[#2E3191]/20 w-max">Nota {inv.number}</span>
-                                <h3 className="text-sm font-bold text-zinc-900 line-clamp-2">{inv.recipient?.name?.toUpperCase() || "—"}</h3>
-                                <div className="mt-2 text-xs text-zinc-600 border-t border-zinc-100 pt-2">{inv.recipient?.address?.city} / {inv.recipient?.address?.state}</div>
-                              </div>
-                            </OverlayViewF>
-                          )}
+                    {activeMarkerId === `inv-${inv.id}` && (
+                      <OverlayViewF position={{ lat: inv.displayLat, lng: inv.displayLng }} mapPaneName="overlayMouseTarget" getPixelPositionOffset={(w, h) => ({ x: -(w / 2), y: -(h + 40) })}>
+                        <div className="relative flex w-64 flex-col rounded-xl bg-white shadow-xl ring-1 ring-black/5 p-4">
+                          <button onClick={(e) => { e.stopPropagation(); setActiveMarkerId(null); }} className="absolute right-2 top-2 h-6 w-6 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-500 hover:text-zinc-900">
+                            <span className="sr-only">Fechar</span>
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                          </button>
+                          <span className="mb-2 inline-flex items-center rounded-full bg-[#2E3191]/10 px-2 py-1 text-xs font-semibold text-[#2E3191] ring-1 ring-[#2E3191]/20 w-max">Nota {inv.number}</span>
+                          <h3 className="text-sm font-bold text-zinc-900 line-clamp-2">{inv.recipient?.name?.toUpperCase() || "—"}</h3>
+                          <div className="mt-2 text-xs text-zinc-600 border-t border-zinc-100 pt-2">{inv.recipient?.address?.city} / {inv.recipient?.address?.state}</div>
+                        </div>
+                      </OverlayViewF>
+                    )}
                   </MarkerF>
                 ))}
                 {displayInvoiceMarkers.filter(inv => selectedInvoiceIds.includes(inv.id)).map((inv) => (
@@ -610,19 +610,19 @@ export default function TravelIndexPage() {
                     }}
                     zIndex={999}
                   >
-                     {activeMarkerId === `inv-${inv.id}` && (
-                        <OverlayViewF position={{ lat: inv.displayLat, lng: inv.displayLng }} mapPaneName="overlayMouseTarget" getPixelPositionOffset={(w, h) => ({ x: -(w / 2), y: -(h + 40) })}>
-                          <div className="relative flex w-64 flex-col rounded-xl bg-white shadow-xl ring-1 ring-black/5 p-4">
-                            <button onClick={(e) => { e.stopPropagation(); setActiveMarkerId(null); }} className="absolute right-2 top-2 h-6 w-6 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-500 hover:text-zinc-900">
-                              <span className="sr-only">Fechar</span>
-                              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                            </button>
-                            <span className="mb-2 inline-flex items-center rounded-full bg-[#2E3191]/10 px-2 py-1 text-xs font-semibold text-[#2E3191] ring-1 ring-[#2E3191]/20 w-max">Nota {inv.number}</span>
-                            <h3 className="text-sm font-bold text-zinc-900 line-clamp-2">{inv.recipient?.name?.toUpperCase() || "—"}</h3>
-                            <div className="mt-2 text-xs text-zinc-600 border-t border-zinc-100 pt-2">{inv.recipient?.address?.city} / {inv.recipient?.address?.state}</div>
-                          </div>
-                        </OverlayViewF>
-                      )}
+                    {activeMarkerId === `inv-${inv.id}` && (
+                      <OverlayViewF position={{ lat: inv.displayLat, lng: inv.displayLng }} mapPaneName="overlayMouseTarget" getPixelPositionOffset={(w, h) => ({ x: -(w / 2), y: -(h + 40) })}>
+                        <div className="relative flex w-64 flex-col rounded-xl bg-white shadow-xl ring-1 ring-black/5 p-4">
+                          <button onClick={(e) => { e.stopPropagation(); setActiveMarkerId(null); }} className="absolute right-2 top-2 h-6 w-6 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-500 hover:text-zinc-900">
+                            <span className="sr-only">Fechar</span>
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                          </button>
+                          <span className="mb-2 inline-flex items-center rounded-full bg-[#2E3191]/10 px-2 py-1 text-xs font-semibold text-[#2E3191] ring-1 ring-[#2E3191]/20 w-max">Nota {inv.number}</span>
+                          <h3 className="text-sm font-bold text-zinc-900 line-clamp-2">{inv.recipient?.name?.toUpperCase() || "—"}</h3>
+                          <div className="mt-2 text-xs text-zinc-600 border-t border-zinc-100 pt-2">{inv.recipient?.address?.city} / {inv.recipient?.address?.state}</div>
+                        </div>
+                      </OverlayViewF>
+                    )}
                   </MarkerF>
                 ))}
               </>
@@ -714,7 +714,7 @@ export default function TravelIndexPage() {
                 </div>
                 <button
                   onClick={() => setIsRoutingModalOpen(true)}
-                  className="rounded-full bg-[#2E3191] px-4 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-[#1E2266] transition-colors"
+                  className="rounded-full bg-[#2E3191] px-4 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-[#2E3191] transition-colors"
                 >
                   Roteirizar
                 </button>
@@ -786,81 +786,81 @@ export default function TravelIndexPage() {
                 <tr><td colSpan={15} className="px-4 py-10 text-center text-sm text-red-500">{error}</td></tr>
               ) : viewMode === "entregas" ? (
                 invoices.length === 0 ? <tr><td colSpan={10} className="px-4 py-10 text-center text-sm text-zinc-500">Nenhuma nota fiscal.</td></tr> :
-                invoices.map((row) => (
-                  <tr key={row.id} onClick={() => handleInvoiceRowClick(row)} className={`cursor-pointer hover:bg-zinc-50 ${selectedInvoiceIds.includes(row.id) ? "bg-[#2E3191]/5" : ""}`}>
-                    <td className="px-4 py-3 text-sm" onClick={e => e.stopPropagation()}>
-                      <input
-                        type="checkbox"
-                        checked={selectedInvoiceIds.includes(row.id)}
-                        onChange={() => {
-                          toggleSelectInvoice(row.id);
-                          if (!selectedInvoiceIds.includes(row.id)) {
-                            handleInvoiceRowClick(row);
-                          }
-                        }}
-                        className="h-4 w-4 rounded border-zinc-300 text-[#2E3191] focus:ring-[#2E3191]/20 accent-[#2E3191] cursor-pointer"
-                      />
-                    </td>
-                    <td className="px-4 py-3 text-sm font-medium text-zinc-900">{row.number || "—"}</td>
-                    <td className="px-4 py-3 text-sm text-zinc-700">{row.recipient?.name || "—"}</td>
-                    <td className="px-4 py-3 text-sm text-zinc-700">{formatDate(row.issuedAt)}</td>
-                    <td className="px-4 py-3 text-sm text-zinc-700">{row.recipient?.address?.address || "—"}</td>
-                    <td className="px-4 py-3 text-sm text-zinc-700">{row.recipient?.address?.city}/{row.recipient?.address?.state}</td>
-                    <td className="px-4 py-3 text-right text-sm text-[#2E3191]">{row.value?.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
-                    <td className="px-4 py-3 text-right text-sm text-zinc-700">{row.weight?.toLocaleString("pt-BR")} kg</td>
-                    <td className="px-4 py-3 text-center text-sm"><span className="inline-flex rounded-full bg-zinc-100 px-2 text-xs">{row.statusDescription}</span></td>
-                  </tr>
-                ))
+                  invoices.map((row) => (
+                    <tr key={row.id} onClick={() => handleInvoiceRowClick(row)} className={`cursor-pointer hover:bg-zinc-50 ${selectedInvoiceIds.includes(row.id) ? "bg-[#2E3191]/5" : ""}`}>
+                      <td className="px-4 py-3 text-sm" onClick={e => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={selectedInvoiceIds.includes(row.id)}
+                          onChange={() => {
+                            toggleSelectInvoice(row.id);
+                            if (!selectedInvoiceIds.includes(row.id)) {
+                              handleInvoiceRowClick(row);
+                            }
+                          }}
+                          className="h-4 w-4 rounded border-zinc-300 text-[#2E3191] focus:ring-[#2E3191]/20 accent-[#2E3191] cursor-pointer"
+                        />
+                      </td>
+                      <td className="px-4 py-3 text-sm font-medium text-zinc-900">{row.number || "—"}</td>
+                      <td className="px-4 py-3 text-sm text-zinc-700">{row.recipient?.name || "—"}</td>
+                      <td className="px-4 py-3 text-sm text-zinc-700">{formatDate(row.issuedAt)}</td>
+                      <td className="px-4 py-3 text-sm text-zinc-700">{row.recipient?.address?.address || "—"}</td>
+                      <td className="px-4 py-3 text-sm text-zinc-700">{row.recipient?.address?.city}/{row.recipient?.address?.state}</td>
+                      <td className="px-4 py-3 text-right text-sm text-[#2E3191]">{row.value?.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
+                      <td className="px-4 py-3 text-right text-sm text-zinc-700">{row.weight?.toLocaleString("pt-BR")} kg</td>
+                      <td className="px-4 py-3 text-center text-sm"><span className="inline-flex rounded-full bg-zinc-100 px-2 text-xs">{row.statusDescription}</span></td>
+                    </tr>
+                  ))
               ) : (
                 travels.length === 0 ? <tr><td colSpan={12} className="px-4 py-10 text-center text-sm text-zinc-500">Nenhuma viagem encontrada.</td></tr> :
-                travels.map((row) => (
-                  <tr key={row.id} onClick={() => handleTravelRowClick(row)} className={`cursor-pointer hover:bg-zinc-50 ${selectedTravelIds.includes(row.id) ? "bg-[#2E3191]/5" : ""}`}>
-                    <td className="px-4 py-3 text-sm" onClick={e => e.stopPropagation()}>
-                      <input
-                        type="checkbox"
-                        checked={selectedTravelIds.includes(row.id)}
-                        onChange={() => {
-                          toggleSelectTravel(row.id);
-                          if (!selectedTravelIds.includes(row.id)) {
-                            handleTravelRowClick(row);
-                          }
-                        }}
-                        className="h-4 w-4 rounded border-zinc-300 text-[#2E3191] focus:ring-[#2E3191]/20 accent-[#2E3191] cursor-pointer"
-                      />
-                    </td>
-                    <td className="px-4 py-3 text-sm font-medium text-zinc-900 flex items-center gap-2">
-                       <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: row.color || '#2E3191' }}></span>
-                       #{row.id}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-zinc-700">{row.origin?.address?.city ? `${row.origin.address.city}/${row.origin.address.state}` : row.origin?.name || "—"}</td>
-                    <td className="px-4 py-3 text-sm text-zinc-700">{formatDate(row.startDate)}</td>
-                    <td className="px-4 py-3 text-sm text-zinc-700">{formatDate(row.endDate)}</td>
-                    <td className="px-4 py-3 text-right text-sm text-zinc-700">{row.invoiceQuantity}</td>
-                    <td className="px-4 py-3 text-right text-sm text-zinc-700">{row.locationQuantity}</td>
-                    <td className="px-4 py-3 text-right text-sm text-zinc-700">{(Number(row.totalDistance) / 1000).toLocaleString("pt-BR")} km</td>
-                    <td className="px-4 py-3 text-right text-sm text-[#2E3191] font-medium">{Number(row.totalValue).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
-                    <td className="px-4 py-3 text-right text-sm text-zinc-700">{Number(row.totalWeight).toLocaleString("pt-BR")} kg</td>
-                    <td className="px-4 py-3 text-right text-sm text-zinc-700">{Number(row.totalVolume).toLocaleString("pt-BR", { minimumFractionDigits: 4, maximumFractionDigits: 4 })} m³</td>
-                    <td className="px-4 py-3 text-center text-sm" onClick={e => e.stopPropagation()}>
-                      <div className="flex items-center justify-center gap-1">
-                        <button
-                          onClick={() => void handleViewTravelDetail(row.id)}
-                          className="rounded-md p-1.5 text-zinc-400 hover:bg-[#2E3191]/10 hover:text-[#2E3191] transition-all"
-                          title="Ver Detalhes"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteTravel(row.id)}
-                          className="rounded-md p-1.5 text-zinc-400 hover:bg-red-50 hover:text-red-600 transition-all"
-                          title="Excluir Viagem"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                  travels.map((row) => (
+                    <tr key={row.id} onClick={() => handleTravelRowClick(row)} className={`cursor-pointer hover:bg-zinc-50 ${selectedTravelIds.includes(row.id) ? "bg-[#2E3191]/5" : ""}`}>
+                      <td className="px-4 py-3 text-sm" onClick={e => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={selectedTravelIds.includes(row.id)}
+                          onChange={() => {
+                            toggleSelectTravel(row.id);
+                            if (!selectedTravelIds.includes(row.id)) {
+                              handleTravelRowClick(row);
+                            }
+                          }}
+                          className="h-4 w-4 rounded border-zinc-300 text-[#2E3191] focus:ring-[#2E3191]/20 accent-[#2E3191] cursor-pointer"
+                        />
+                      </td>
+                      <td className="px-4 py-3 text-sm font-medium text-zinc-900 flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: row.color || '#2E3191' }}></span>
+                        #{row.id}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-zinc-700">{row.origin?.address?.city ? `${row.origin.address.city}/${row.origin.address.state}` : row.origin?.name || "—"}</td>
+                      <td className="px-4 py-3 text-sm text-zinc-700">{formatDate(row.startDate)}</td>
+                      <td className="px-4 py-3 text-sm text-zinc-700">{formatDate(row.endDate)}</td>
+                      <td className="px-4 py-3 text-right text-sm text-zinc-700">{row.invoiceQuantity}</td>
+                      <td className="px-4 py-3 text-right text-sm text-zinc-700">{row.locationQuantity}</td>
+                      <td className="px-4 py-3 text-right text-sm text-zinc-700">{(Number(row.totalDistance) / 1000).toLocaleString("pt-BR")} km</td>
+                      <td className="px-4 py-3 text-right text-sm text-[#2E3191] font-medium">{Number(row.totalValue).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
+                      <td className="px-4 py-3 text-right text-sm text-zinc-700">{Number(row.totalWeight).toLocaleString("pt-BR")} kg</td>
+                      <td className="px-4 py-3 text-right text-sm text-zinc-700">{Number(row.totalVolume).toLocaleString("pt-BR", { minimumFractionDigits: 4, maximumFractionDigits: 4 })} m³</td>
+                      <td className="px-4 py-3 text-center text-sm" onClick={e => e.stopPropagation()}>
+                        <div className="flex items-center justify-center gap-1">
+                          <button
+                            onClick={() => void handleViewTravelDetail(row.id)}
+                            className="rounded-md p-1.5 text-zinc-400 hover:bg-[#2E3191]/10 hover:text-[#2E3191] transition-all"
+                            title="Ver Detalhes"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteTravel(row.id)}
+                            className="rounded-md p-1.5 text-zinc-400 hover:bg-red-50 hover:text-red-600 transition-all"
+                            title="Excluir Viagem"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
               )}
             </tbody>
           </table>
@@ -898,7 +898,7 @@ export default function TravelIndexPage() {
               <button
                 disabled={isRouting}
                 onClick={() => void handleCreateTravel()}
-                className="rounded-xl bg-[#2E3191] px-6 py-2 text-sm font-bold text-white shadow-lg hover:bg-[#1E2266] transition-all disabled:opacity-50 flex items-center gap-2"
+                className="rounded-xl bg-[#2E3191] px-6 py-2 text-sm font-bold text-white shadow-lg hover:bg-[#2E3191] transition-all disabled:opacity-50 flex items-center gap-2"
               >
                 {isRouting ? (
                   <>
@@ -1005,14 +1005,12 @@ export default function TravelIndexPage() {
                     {travelDetail.travelPoints.map((point, idx) => {
                       const isOrigin = point.stopTypeId === 4;
                       return (
-                        <div key={`${point.locationId}-${point.sequence}`} className={`rounded-xl ring-1 transition-all ${
-                          isOrigin ? 'ring-[#2E3191]/30 bg-[#2E3191]/5' : 'ring-zinc-200 bg-white hover:ring-zinc-300'
-                        }`}>
+                        <div key={`${point.locationId}-${point.sequence}`} className={`rounded-xl ring-1 transition-all ${isOrigin ? 'ring-[#2E3191]/30 bg-[#2E3191]/5' : 'ring-zinc-200 bg-white hover:ring-zinc-300'
+                          }`}>
                           {/* Point header */}
                           <div className="flex items-start gap-3 px-4 py-3">
-                            <div className={`mt-0.5 flex items-center justify-center h-7 w-7 rounded-full text-xs font-bold shrink-0 ${
-                              isOrigin ? 'bg-[#2E3191] text-white' : 'bg-zinc-200 text-zinc-700'
-                            }`}>
+                            <div className={`mt-0.5 flex items-center justify-center h-7 w-7 rounded-full text-xs font-bold shrink-0 ${isOrigin ? 'bg-[#2E3191] text-white' : 'bg-zinc-200 text-zinc-700'
+                              }`}>
                               {isOrigin ? <MapPin className="h-3.5 w-3.5" /> : idx}
                             </div>
                             <div className="flex-1 min-w-0">
